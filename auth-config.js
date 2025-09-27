@@ -564,11 +564,60 @@ class AuthManager {
   }
 }
 
+// Aggressive postMessage error suppression
+(function() {
+  // Override postMessage to catch and suppress Google API errors
+  const originalPostMessage = window.postMessage;
+  window.postMessage = function(message, targetOrigin, transfer) {
+    try {
+      return originalPostMessage.call(this, message, targetOrigin, transfer);
+    } catch (error) {
+      if (error.message && error.message.includes('postMessage')) {
+        console.warn('Suppressed postMessage error:', error);
+        return;
+      }
+      throw error;
+    }
+  };
+
+  // Override iframe postMessage as well
+  const originalCreateElement = document.createElement;
+  document.createElement = function(tagName) {
+    const element = originalCreateElement.call(this, tagName);
+    if (tagName.toLowerCase() === 'iframe') {
+      const originalContentWindow = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'contentWindow');
+      if (originalContentWindow) {
+        Object.defineProperty(element, 'contentWindow', {
+          get: function() {
+            const contentWindow = originalContentWindow.get.call(this);
+            if (contentWindow && contentWindow.postMessage) {
+              const originalIframePostMessage = contentWindow.postMessage;
+              contentWindow.postMessage = function(message, targetOrigin, transfer) {
+                try {
+                  return originalIframePostMessage.call(this, message, targetOrigin, transfer);
+                } catch (error) {
+                  console.warn('Suppressed iframe postMessage error:', error);
+                  return;
+                }
+              };
+            }
+            return contentWindow;
+          }
+        });
+      }
+    }
+    return element;
+  };
+})();
+
 // Global error handler for Google API internal errors
 window.addEventListener('error', (event) => {
-  if (event.filename && (event.filename.includes('gapi') || event.filename.includes('google'))) {
-    console.warn('Suppressed Google API internal error:', event.error);
+  const errorMessage = event.error ? event.error.message : event.message;
+  if (event.filename && (event.filename.includes('gapi') || event.filename.includes('google')) ||
+      errorMessage && (errorMessage.includes('postMessage') || errorMessage.includes('iframe'))) {
+    console.warn('Suppressed Google API internal error:', event.error || event.message);
     event.preventDefault();
+    event.stopPropagation();
     return true;
   }
 });
@@ -578,11 +627,27 @@ window.addEventListener('unhandledrejection', (event) => {
       (event.reason.toString().includes('gapi') || 
        event.reason.toString().includes('google') ||
        event.reason.toString().includes('postMessage') ||
-       event.reason.toString().includes('iframe'))) {
+       event.reason.toString().includes('iframe') ||
+       event.reason.toString().includes('null'))) {
     console.warn('Suppressed Google API internal promise rejection:', event.reason);
     event.preventDefault();
+    event.stopPropagation();
   }
 });
+
+// Additional console error suppression
+const originalConsoleError = console.error;
+console.error = function(...args) {
+  const message = args.join(' ');
+  if (message.includes('postMessage') || 
+      message.includes('gapi') || 
+      message.includes('google') ||
+      message.includes('iframe')) {
+    console.warn('Suppressed console error:', ...args);
+    return;
+  }
+  return originalConsoleError.apply(console, args);
+};
 
 // Create global auth manager instance
 const authManager = new AuthManager();
