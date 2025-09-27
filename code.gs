@@ -12,8 +12,8 @@
 // Configuration - Auto-populated when you run setupDatabase()
 const CONFIG = {
   // Database Configuration
-  SPREADSHEET_ID: '', // Set by setupDatabase()
-  SPREADSHEET_URL: '', // Set by setupDatabase()
+  SPREADSHEET_ID: '1VL88ifedvnqAyRowYP9VLVfllxfYTdEl8vlNYpYg1io', // Set by setupDatabase()
+  SPREADSHEET_URL: 'https://docs.google.com/spreadsheets/d/1VL88ifedvnqAyRowYP9VLVfllxfYTdEl8vlNYpYg1io/edit', // Set by setupDatabase()
   
   // OAuth Configuration (Set these manually)
   OAUTH_CLIENT_ID: '262787244087-9gsvmohlae91ts15d3h065ebba84ltcq.apps.googleusercontent.com',
@@ -21,7 +21,7 @@ const CONFIG = {
   
   // Default Admin User
   DEFAULT_ADMIN: {
-    email: 'admin@yourdomain.com', // Change this to your email
+    email: 'rareauramedia@gmail.com', // Change this to your email
     name: 'System Administrator',
     role: 'admin'
   },

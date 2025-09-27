@@ -12,8 +12,8 @@
 // Authentication Configuration
 const AUTH_CONFIG = {
   // Excel Database Configuration
-  EXCEL_SHEET_ID: '', // PASTE YOUR SPREADSHEET ID HERE after running setupDatabase()
-  EXCEL_SHEET_URL: '', // Optional: Direct link to your spreadsheet
+  EXCEL_SHEET_ID: '1VL88ifedvnqAyRowYP9VLVfllxfYTdEl8vlNYpYg1io', // PASTE YOUR SPREADSHEET ID HERE after running setupDatabase()
+  EXCEL_SHEET_URL: 'https://docs.google.com/spreadsheets/d/1VL88ifedvnqAyRowYP9VLVfllxfYTdEl8vlNYpYg1io/edit', // Optional: Direct link to your spreadsheet
   
   // Google OAuth Configuration
   GOOGLE_CLIENT_ID: '262787244087-9gsvmohlae91ts15d3h065ebba84ltcq.apps.googleusercontent.com', // Replace with your OAuth Client ID
@@ -25,7 +25,7 @@ const AUTH_CONFIG = {
   ],
   
   // Apps Script Configuration
-  APPS_SCRIPT_URL: 'YOUR_APPS_SCRIPT_WEB_APP_URL', // Replace with your deployed Apps Script URL
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzvrG5ZleQryrtGHjbyrs5BrVc2UeGeI5xzJ1aroHhoEtWamTZLeFyas7ZoEyU1YXxF/exec', // Replace with your deployed Apps Script URL
   
   // Authentication Settings
   AUTH_SETTINGS: {
