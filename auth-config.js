@@ -92,7 +92,7 @@ class AuthManager {
                 
                 // Check if user is already signed in
                 if (AUTH_CONFIG.AUTH_SETTINGS.autoLogin) {
-                  setTimeout(() => this.checkExistingAuth(), 1000);
+                  setTimeout(() => this.checkExistingAuth(), 1500);
                 }
                 resolve();
               }).catch(error => {
@@ -141,13 +141,29 @@ class AuthManager {
    */
   async checkExistingAuth() {
     try {
+      // Add safety checks to prevent postMessage errors
+      if (!window.gapi || !gapi.auth2) {
+        console.log('Google API not ready yet, skipping auth check');
+        return;
+      }
+      
       const authInstance = gapi.auth2.getAuthInstance();
-      if (authInstance.isSignedIn.get()) {
-        const user = authInstance.currentUser.get();
-        await this.handleAuthSuccess(user);
+      if (!authInstance) {
+        console.log('Auth instance not available yet');
+        return;
+      }
+      
+      // Check if user is signed in with additional safety
+      if (authInstance.isSignedIn && authInstance.isSignedIn.get()) {
+        const currentUser = authInstance.currentUser;
+        if (currentUser && currentUser.get()) {
+          const user = currentUser.get();
+          await this.handleAuthSuccess(user);
+        }
       }
     } catch (error) {
-      console.error('Error checking existing auth:', error);
+      console.warn('⚠️ Auth check warning (non-critical):', error.message);
+      // Don't throw - this is often just timing issues
     }
   }
   
