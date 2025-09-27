@@ -96,8 +96,13 @@ class AuthManager {
                 }
                 resolve();
               }).catch(error => {
-                console.warn('⚠️ OAuth init warning:', error);
-                // Continue anyway as some errors are non-critical
+                if (error.error === 'idpiframe_initialization_failed') {
+                  console.warn('⚠️ Google OAuth iframe initialization failed - this is expected on some deployments');
+                  console.log('📝 Authentication will still work via popup method');
+                } else {
+                  console.warn('⚠️ OAuth init warning:', error);
+                }
+                // Continue anyway as these errors are often non-critical
                 resolve();
               });
             } catch (error) {
