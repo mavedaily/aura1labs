@@ -70,20 +70,22 @@ class AuthManager {
   }
   
   /**
-   * Initialize Google API and OAuth
+   * Initialize Google API with retry mechanism and complete error isolation
    */
   async initializeGoogleAPI() {
-    try {
-      // Load Google API
-      await this.loadGoogleAPI();
-      
-      // Initialize OAuth with retry mechanism
-      await this.initializeOAuthWithRetry();
-      
-    } catch (error) {
-      console.warn('⚠️ Google API initialization warning:', error);
-      // Continue anyway - authentication might still work
-    }
+    return await this.executeWithErrorIsolation(async () => {
+      try {
+        // Load Google API
+        await this.loadGoogleAPI();
+        
+        // Initialize OAuth with retry mechanism
+        await this.initializeOAuthWithRetry();
+        
+      } catch (error) {
+        console.warn('⚠️ Google API initialization warning:', error);
+        // Continue anyway - authentication might still work
+      }
+    });
   }
   
   async initializeOAuthWithRetry(maxRetries = 3) {
@@ -202,87 +204,135 @@ class AuthManager {
   }
   
   /**
-   * Sign in with Google
+   * Sign in with Google - Final robust version
    */
   async signIn() {
-    try {
-      // Enhanced safety checks
-      if (!window.gapi) {
-        throw new Error('Google API not loaded');
-      }
-      
-      if (!gapi.auth2) {
-        throw new Error('Google Auth2 not initialized');
-      }
-      
-      const authInstance = gapi.auth2.getAuthInstance();
-      if (!authInstance) {
-        throw new Error('Auth instance not available');
-      }
-      
-      // Check if already signed in
-      if (authInstance.isSignedIn && authInstance.isSignedIn.get()) {
-        console.log('User already signed in, using existing session');
-        const currentUser = authInstance.currentUser;
-        if (currentUser && currentUser.get()) {
-          const user = currentUser.get();
-          await this.handleAuthSuccess(user);
-          return { success: true, user: this.currentUser };
-        }
-      }
-      
-      // Attempt sign in with additional error wrapping
-      console.log('Attempting Google sign in...');
-      let user;
-      
+    // Wrap everything in a global error handler
+    return await this.executeWithErrorIsolation(async () => {
       try {
-        user = await authInstance.signIn({
-          prompt: 'select_account'
-        });
-      } catch (signInError) {
-        // Handle specific Google API errors
-        if (signInError.error === 'popup_closed_by_user') {
-          throw new Error('Sign in was cancelled by user');
-        } else if (signInError.error === 'access_denied') {
-          throw new Error('Access denied by user');
-        } else {
-          // For internal Google API errors, try alternative approach
-          console.warn('Standard sign in failed, trying alternative method:', signInError);
-          
-          // Try using the popup method explicitly
+        // Enhanced safety checks
+        if (!window.gapi) {
+          throw new Error('Google API not loaded');
+        }
+        
+        if (!gapi.auth2) {
+          throw new Error('Google Auth2 not initialized');
+        }
+        
+        const authInstance = gapi.auth2.getAuthInstance();
+        if (!authInstance) {
+          throw new Error('Auth instance not available');
+        }
+        
+        // Check if already signed in with complete error isolation
+        try {
+          if (authInstance.isSignedIn && authInstance.isSignedIn.get()) {
+            console.log('User already signed in, using existing session');
+            const currentUser = authInstance.currentUser;
+            if (currentUser && currentUser.get()) {
+              const user = currentUser.get();
+              await this.handleAuthSuccess(user);
+              return { success: true, user: this.currentUser };
+            }
+          }
+        } catch (checkError) {
+          console.warn('Error checking existing auth, proceeding with fresh sign in:', checkError);
+        }
+        
+        // Attempt sign in with complete error isolation
+        console.log('Attempting Google sign in...');
+        let user;
+        
+        // Try multiple sign-in approaches with complete error isolation
+        const signInMethods = [
+          () => authInstance.signIn({ prompt: 'select_account' }),
+          () => authInstance.signIn({ ux_mode: 'popup', prompt: 'select_account' }),
+          () => authInstance.signIn({ ux_mode: 'popup' }),
+          () => authInstance.signIn()
+        ];
+        
+        for (let i = 0; i < signInMethods.length; i++) {
           try {
-            user = await authInstance.signIn({
-              ux_mode: 'popup',
-              prompt: 'select_account'
-            });
-          } catch (popupError) {
-            throw new Error(`Sign in failed: ${popupError.message || 'Unknown error'}`);
+            user = await this.executeWithErrorIsolation(signInMethods[i]);
+            if (user) break;
+          } catch (methodError) {
+            console.warn(`Sign in method ${i + 1} failed:`, methodError);
+            if (i === signInMethods.length - 1) {
+              throw new Error('All sign in methods failed');
+            }
           }
         }
+        
+        if (user) {
+          await this.handleAuthSuccess(user);
+          return { success: true, user: this.currentUser };
+        } else {
+          throw new Error('No user returned from sign in');
+        }
+        
+      } catch (error) {
+        console.error('Sign in failed:', error);
+        
+        // Show user-friendly error message
+        const errorMessage = error.message || 'Authentication failed. Please try again.';
+        
+        // Try to show error in UI if available
+        const errorElement = document.getElementById('auth-error');
+        if (errorElement) {
+          errorElement.textContent = errorMessage;
+          errorElement.style.display = 'block';
+        }
+        
+        return { success: false, error: errorMessage };
       }
+    });
+  }
+  
+  /**
+   * Execute function with complete error isolation
+   */
+  async executeWithErrorIsolation(fn) {
+    return new Promise(async (resolve, reject) => {
+      // Set up temporary error handlers
+      const originalOnError = window.onerror;
+      const originalOnUnhandledRejection = window.onunhandledrejection;
       
-      if (user) {
-        await this.handleAuthSuccess(user);
-        return { success: true, user: this.currentUser };
-      } else {
-        throw new Error('No user returned from sign in');
+      const errors = [];
+      
+      // Capture all errors during execution
+      window.onerror = (message, source, lineno, colno, error) => {
+        if (source && source.includes('gapi') || source && source.includes('google')) {
+          errors.push({ type: 'script', message, source, error });
+          return true; // Prevent default handling
+        }
+        return originalOnError ? originalOnError(message, source, lineno, colno, error) : false;
+      };
+      
+      window.onunhandledrejection = (event) => {
+        if (event.reason && (event.reason.toString().includes('gapi') || event.reason.toString().includes('google'))) {
+          errors.push({ type: 'promise', reason: event.reason });
+          event.preventDefault(); // Prevent default handling
+          return;
+        }
+        return originalOnUnhandledRejection ? originalOnUnhandledRejection(event) : undefined;
+      };
+      
+      try {
+        const result = await fn();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      } finally {
+        // Restore original error handlers
+        window.onerror = originalOnError;
+        window.onunhandledrejection = originalOnUnhandledRejection;
+        
+        // Log captured errors as warnings
+        if (errors.length > 0) {
+          console.warn('Captured and isolated Google API errors:', errors);
+        }
       }
-      
-    } catch (error) {
-      console.error('Sign in failed:', error);
-      
-      // Show user-friendly error message
-      const errorMessage = error.message || 'Authentication failed. Please try again.';
-      
-      // Try to show error in UI if available
-      const errorElement = document.getElementById('auth-error');
-      if (errorElement) {
-        errorElement.textContent = errorMessage;
-        errorElement.style.display = 'block';
-      }
-      
-      return { success: false, error: errorMessage };
-    }
+    });
   }
   
   /**
@@ -513,6 +563,26 @@ class AuthManager {
     }
   }
 }
+
+// Global error handler for Google API internal errors
+window.addEventListener('error', (event) => {
+  if (event.filename && (event.filename.includes('gapi') || event.filename.includes('google'))) {
+    console.warn('Suppressed Google API internal error:', event.error);
+    event.preventDefault();
+    return true;
+  }
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && event.reason.toString && 
+      (event.reason.toString().includes('gapi') || 
+       event.reason.toString().includes('google') ||
+       event.reason.toString().includes('postMessage') ||
+       event.reason.toString().includes('iframe'))) {
+    console.warn('Suppressed Google API internal promise rejection:', event.reason);
+    event.preventDefault();
+  }
+});
 
 // Create global auth manager instance
 const authManager = new AuthManager();
