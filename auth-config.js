@@ -77,37 +77,55 @@ class AuthManager {
       // Load Google API
       await this.loadGoogleAPI();
       
-      // Initialize OAuth with better error handling
-      await new Promise((resolve, reject) => {
-        gapi.load('auth2', {
-          callback: () => {
-            try {
-              gapi.auth2.init({
-                client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
-                scope: AUTH_CONFIG.GOOGLE_SCOPES.join(' '),
-                ux_mode: 'popup',
-                redirect_uri: window.location.origin
-              }).then(() => {
-                console.log('✅ Google OAuth initialized successfully');
-                
-                // Check if user is already signed in
-                if (AUTH_CONFIG.AUTH_SETTINGS.autoLogin) {
-                  setTimeout(() => this.checkExistingAuth(), 1500);
-                }
-                resolve();
-              }).catch(error => {
-                if (error.error === 'idpiframe_initialization_failed') {
-                  console.warn('⚠️ Google OAuth iframe initialization failed - this is expected on some deployments');
-                  console.log('📝 Authentication will still work via popup method');
-                } else {
-                  console.warn('⚠️ OAuth init warning:', error);
-                }
-                // Continue anyway as these errors are often non-critical
-                resolve();
-              });
-            } catch (error) {
-              console.warn('⚠️ OAuth setup warning:', error);
-              resolve(); // Continue anyway
+      // Initialize OAuth with retry mechanism
+      await this.initializeOAuthWithRetry();
+      
+    } catch (error) {
+      console.warn('⚠️ Google API initialization warning:', error);
+      // Continue anyway - authentication might still work
+    }
+  }
+  
+  async initializeOAuthWithRetry(maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await new Promise((resolve, reject) => {
+          gapi.load('auth2', {
+            callback: () => {
+              try {
+                // Add delay before initialization to prevent race conditions
+                setTimeout(() => {
+                  gapi.auth2.init({
+                    client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
+                    scope: AUTH_CONFIG.GOOGLE_SCOPES.join(' '),
+                    ux_mode: 'popup',
+                    redirect_uri: window.location.origin,
+                    // Add additional configuration for better compatibility
+                    hosted_domain: null,
+                    fetch_basic_profile: true,
+                    immediate: false
+                  }).then(() => {
+                    console.log('✅ Google OAuth initialized successfully');
+                    
+                    // Check if user is already signed in with longer delay
+                    if (AUTH_CONFIG.AUTH_SETTINGS.autoLogin) {
+                      setTimeout(() => this.checkExistingAuth(), 2000);
+                    }
+                    resolve();
+                  }).catch(error => {
+                    if (error.error === 'idpiframe_initialization_failed') {
+                      console.warn('⚠️ Google OAuth iframe initialization failed - this is expected on some deployments');
+                      console.log('📝 Authentication will still work via popup method');
+                    } else {
+                      console.warn('⚠️ OAuth init warning:', error);
+                    }
+                    // Continue anyway as these errors are often non-critical
+                    resolve();
+                  });
+                }, 500); // 500ms delay before initialization
+              } catch (error) {
+                console.warn('⚠️ OAuth setup warning:', error);
+                resolve(); // Continue anyway
             }
           },
           onerror: (error) => {
@@ -115,11 +133,22 @@ class AuthManager {
             resolve(); // Continue anyway
           }
         });
-      });
-      
-    } catch (error) {
-      console.warn('⚠️ Google API initialization warning:', error);
-      // Don't throw - let the app continue to work
+        });
+        
+        // If we reach here, initialization was successful
+        return;
+        
+      } catch (error) {
+        console.warn(`⚠️ OAuth initialization attempt ${attempt} failed:`, error);
+        
+        if (attempt === maxRetries) {
+          console.warn('⚠️ All OAuth initialization attempts failed, but continuing anyway');
+          return; // Don't throw - let the app continue
+        }
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
     }
   }
   
@@ -177,13 +206,82 @@ class AuthManager {
    */
   async signIn() {
     try {
+      // Enhanced safety checks
+      if (!window.gapi) {
+        throw new Error('Google API not loaded');
+      }
+      
+      if (!gapi.auth2) {
+        throw new Error('Google Auth2 not initialized');
+      }
+      
       const authInstance = gapi.auth2.getAuthInstance();
-      const user = await authInstance.signIn();
-      await this.handleAuthSuccess(user);
-      return { success: true, user: this.currentUser };
+      if (!authInstance) {
+        throw new Error('Auth instance not available');
+      }
+      
+      // Check if already signed in
+      if (authInstance.isSignedIn && authInstance.isSignedIn.get()) {
+        console.log('User already signed in, using existing session');
+        const currentUser = authInstance.currentUser;
+        if (currentUser && currentUser.get()) {
+          const user = currentUser.get();
+          await this.handleAuthSuccess(user);
+          return { success: true, user: this.currentUser };
+        }
+      }
+      
+      // Attempt sign in with additional error wrapping
+      console.log('Attempting Google sign in...');
+      let user;
+      
+      try {
+        user = await authInstance.signIn({
+          prompt: 'select_account'
+        });
+      } catch (signInError) {
+        // Handle specific Google API errors
+        if (signInError.error === 'popup_closed_by_user') {
+          throw new Error('Sign in was cancelled by user');
+        } else if (signInError.error === 'access_denied') {
+          throw new Error('Access denied by user');
+        } else {
+          // For internal Google API errors, try alternative approach
+          console.warn('Standard sign in failed, trying alternative method:', signInError);
+          
+          // Try using the popup method explicitly
+          try {
+            user = await authInstance.signIn({
+              ux_mode: 'popup',
+              prompt: 'select_account'
+            });
+          } catch (popupError) {
+            throw new Error(`Sign in failed: ${popupError.message || 'Unknown error'}`);
+          }
+        }
+      }
+      
+      if (user) {
+        await this.handleAuthSuccess(user);
+        return { success: true, user: this.currentUser };
+      } else {
+        throw new Error('No user returned from sign in');
+      }
+      
     } catch (error) {
       console.error('Sign in failed:', error);
-      return { success: false, error: error.message };
+      
+      // Show user-friendly error message
+      const errorMessage = error.message || 'Authentication failed. Please try again.';
+      
+      // Try to show error in UI if available
+      const errorElement = document.getElementById('auth-error');
+      if (errorElement) {
+        errorElement.textContent = errorMessage;
+        errorElement.style.display = 'block';
+      }
+      
+      return { success: false, error: errorMessage };
     }
   }
   
