@@ -77,23 +77,44 @@ class AuthManager {
       // Load Google API
       await this.loadGoogleAPI();
       
-      // Initialize OAuth
-      await gapi.load('auth2', () => {
-        gapi.auth2.init({
-          client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
-          scope: AUTH_CONFIG.GOOGLE_SCOPES.join(' ')
-        }).then(() => {
-          console.log('✅ Google OAuth initialized successfully');
-          
-          // Check if user is already signed in
-          if (AUTH_CONFIG.AUTH_SETTINGS.autoLogin) {
-            this.checkExistingAuth();
+      // Initialize OAuth with better error handling
+      await new Promise((resolve, reject) => {
+        gapi.load('auth2', {
+          callback: () => {
+            try {
+              gapi.auth2.init({
+                client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
+                scope: AUTH_CONFIG.GOOGLE_SCOPES.join(' '),
+                ux_mode: 'popup',
+                redirect_uri: window.location.origin
+              }).then(() => {
+                console.log('✅ Google OAuth initialized successfully');
+                
+                // Check if user is already signed in
+                if (AUTH_CONFIG.AUTH_SETTINGS.autoLogin) {
+                  setTimeout(() => this.checkExistingAuth(), 1000);
+                }
+                resolve();
+              }).catch(error => {
+                console.warn('⚠️ OAuth init warning:', error);
+                // Continue anyway as some errors are non-critical
+                resolve();
+              });
+            } catch (error) {
+              console.warn('⚠️ OAuth setup warning:', error);
+              resolve(); // Continue anyway
+            }
+          },
+          onerror: (error) => {
+            console.warn('⚠️ GAPI load warning:', error);
+            resolve(); // Continue anyway
           }
         });
       });
       
     } catch (error) {
-      console.error('❌ Failed to initialize Google API:', error);
+      console.warn('⚠️ Google API initialization warning:', error);
+      // Don't throw - let the app continue to work
     }
   }
   
