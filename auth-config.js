@@ -1,659 +1,462 @@
 /**
- * AuraReach Authentication Configuration
- * This file manages Google OAuth settings and Excel database configuration
- * 
- * SETUP INSTRUCTIONS:
- * 1. Run the setupDatabase() function in Google Apps Script
- * 2. Copy the generated Spreadsheet ID to EXCEL_SHEET_ID below
- * 3. Set up Google OAuth in Google Cloud Console
- * 4. Update GOOGLE_CLIENT_ID with your OAuth client ID
+ * Simple Sheet-Based Authentication System for AuraReach
+ * No Google OAuth - Direct sheet verification
  */
 
-// Authentication Configuration
-const AUTH_CONFIG = {
-  // Excel Database Configuration
-  EXCEL_SHEET_ID: '1VL88ifedvnqAyRowYP9VLVfllxfYTdEl8vlNYpYg1io', // PASTE YOUR SPREADSHEET ID HERE after running setupDatabase()
-  EXCEL_SHEET_URL: 'https://docs.google.com/spreadsheets/d/1VL88ifedvnqAyRowYP9VLVfllxfYTdEl8vlNYpYg1io/edit', // Optional: Direct link to your spreadsheet
-  
-  // Google OAuth Configuration
-  GOOGLE_CLIENT_ID: '262787244087-9gsvmohlae91ts15d3h065ebba84ltcq.apps.googleusercontent.com', // Replace with your OAuth Client ID
-  GOOGLE_SCOPES: [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'https://www.googleapis.com/auth/gmail.send',
-    'https://www.googleapis.com/auth/gmail.readonly'
-  ],
-  
-  // Apps Script Configuration
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzvrG5ZleQryrtGHjbyrs5BrVc2UeGeI5xzJ1aroHhoEtWamTZLeFyas7ZoEyU1YXxF/exec', // Replace with your deployed Apps Script URL
-  
-  // Authentication Settings
-  AUTH_SETTINGS: {
-    autoLogin: true, // Enable automatic login on page load
-    rememberUser: true, // Remember user login state
-    sessionTimeout: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-    redirectAfterLogin: '/dashboard', // Where to redirect after successful login
-    loginRequired: true // Require login to access the application
-  },
-  
-  // User Role Configuration
-  DEFAULT_USER_ROLE: 'user',
-  ADMIN_PERMISSIONS: [
-    'manage_accounts',
-    'manage_users', 
-    'view_analytics',
-    'system_settings',
-    'bulk_operations'
-  ],
-  
-  // Rate Limiting Configuration
-  RATE_LIMITS: {
-    loginAttempts: 5, // Max login attempts before lockout
-    lockoutDuration: 15 * 60 * 1000, // 15 minutes lockout
-    apiCallsPerMinute: 60 // Max API calls per minute per user
-  }
-};
-
-/**
- * Authentication Manager Class
- * Handles Google OAuth authentication and user session management
- */
-class AuthManager {
+class SimpleAuthManager {
   constructor() {
     this.currentUser = null;
-    this.accessToken = null;
     this.isAuthenticated = false;
-    this.authListeners = [];
+    this.userDatabase = [
+      // Add authorized users here
+      { email: 'admin@aurareachmedia.com', name: 'Admin User', role: 'admin' },
+      { email: 'user@aurareachmedia.com', name: 'Regular User', role: 'user' },
+      // Add more users as needed
+    ];
     
-    // Initialize Google API
-    this.initializeGoogleAPI();
+    console.log('🔐 Simple Authentication System Loaded');
+    this.checkExistingAuth();
   }
-  
+
   /**
-   * Initialize Google API with retry mechanism and complete error isolation
+   * Check if user is already authenticated
    */
-  async initializeGoogleAPI() {
-    return await this.executeWithErrorIsolation(async () => {
+  checkExistingAuth() {
+    const savedUser = localStorage.getItem('aurareach_user');
+    if (savedUser) {
       try {
-        // Load Google API
-        await this.loadGoogleAPI();
-        
-        // Initialize OAuth with retry mechanism
-        await this.initializeOAuthWithRetry();
-        
+        this.currentUser = JSON.parse(savedUser);
+        this.isAuthenticated = true;
+        this.updateUI();
+        console.log('✅ User already authenticated:', this.currentUser.email);
       } catch (error) {
-        console.warn('⚠️ Google API initialization warning:', error);
-        // Continue anyway - authentication might still work
-      }
-    });
-  }
-  
-  async initializeOAuthWithRetry(maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        await new Promise((resolve, reject) => {
-          gapi.load('auth2', {
-            callback: () => {
-              try {
-                // Add delay before initialization to prevent race conditions
-                setTimeout(() => {
-                  gapi.auth2.init({
-                    client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
-                    scope: AUTH_CONFIG.GOOGLE_SCOPES.join(' '),
-                    ux_mode: 'popup',
-                    redirect_uri: window.location.origin,
-                    // Add additional configuration for better compatibility
-                    hosted_domain: null,
-                    fetch_basic_profile: true,
-                    immediate: false
-                  }).then(() => {
-                    console.log('✅ Google OAuth initialized successfully');
-                    
-                    // Check if user is already signed in with longer delay
-                    if (AUTH_CONFIG.AUTH_SETTINGS.autoLogin) {
-                      setTimeout(() => this.checkExistingAuth(), 2000);
-                    }
-                    resolve();
-                  }).catch(error => {
-                    if (error.error === 'idpiframe_initialization_failed') {
-                      console.warn('⚠️ Google OAuth iframe initialization failed - this is expected on some deployments');
-                      console.log('📝 Authentication will still work via popup method');
-                    } else {
-                      console.warn('⚠️ OAuth init warning:', error);
-                    }
-                    // Continue anyway as these errors are often non-critical
-                    resolve();
-                  });
-                }, 500); // 500ms delay before initialization
-              } catch (error) {
-                console.warn('⚠️ OAuth setup warning:', error);
-                resolve(); // Continue anyway
-            }
-          },
-          onerror: (error) => {
-            console.warn('⚠️ GAPI load warning:', error);
-            resolve(); // Continue anyway
-          }
-        });
-        });
-        
-        // If we reach here, initialization was successful
-        return;
-        
-      } catch (error) {
-        console.warn(`⚠️ OAuth initialization attempt ${attempt} failed:`, error);
-        
-        if (attempt === maxRetries) {
-          console.warn('⚠️ All OAuth initialization attempts failed, but continuing anyway');
-          return; // Don't throw - let the app continue
-        }
-        
-        // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        console.warn('Invalid saved user data, clearing...');
+        localStorage.removeItem('aurareach_user');
       }
     }
   }
-  
+
   /**
-   * Load Google API script
+   * Simple email-based authentication
    */
-  loadGoogleAPI() {
-    return new Promise((resolve, reject) => {
-      if (window.gapi) {
-        resolve();
-        return;
-      }
-      
-      const script = document.createElement('script');
-      script.src = 'https://apis.google.com/js/api.js';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Google API'));
-      document.head.appendChild(script);
-    });
-  }
-  
-  /**
-   * Check for existing authentication
-   */
-  async checkExistingAuth() {
+  async authenticateWithEmail(email) {
     try {
-      // Add safety checks to prevent postMessage errors
-      if (!window.gapi || !gapi.auth2) {
-        console.log('Google API not ready yet, skipping auth check');
-        return;
+      // Validate email format
+      if (!this.isValidEmail(email)) {
+        throw new Error('Please enter a valid email address');
       }
+
+      // Check if user exists in our database
+      const user = this.userDatabase.find(u => u.email.toLowerCase() === email.toLowerCase());
       
-      const authInstance = gapi.auth2.getAuthInstance();
-      if (!authInstance) {
-        console.log('Auth instance not available yet');
-        return;
+      if (!user) {
+        throw new Error('Email not authorized. Please contact admin for access.');
       }
+
+      // Authenticate user
+      this.currentUser = user;
+      this.isAuthenticated = true;
       
-      // Check if user is signed in with additional safety
-      if (authInstance.isSignedIn && authInstance.isSignedIn.get()) {
-        const currentUser = authInstance.currentUser;
-        if (currentUser && currentUser.get()) {
-          const user = currentUser.get();
-          await this.handleAuthSuccess(user);
-        }
-      }
+      // Save to localStorage
+      localStorage.setItem('aurareach_user', JSON.stringify(user));
+      
+      // Update UI
+      this.updateUI();
+      
+      console.log('✅ Authentication successful:', user.email);
+      return { success: true, user: user };
+      
     } catch (error) {
-      console.warn('⚠️ Auth check warning (non-critical):', error.message);
-      // Don't throw - this is often just timing issues
+      console.error('❌ Authentication failed:', error.message);
+      return { success: false, error: error.message };
     }
   }
-  
+
   /**
-   * Sign in with Google - Final robust version
+   * Quick authentication (auto-login for returning users)
    */
-  async signIn() {
-    // Wrap everything in a global error handler
-    return await this.executeWithErrorIsolation(async () => {
+  async quickAuth() {
+    const savedUser = localStorage.getItem('aurareach_user');
+    if (savedUser) {
       try {
-        // Enhanced safety checks
-        if (!window.gapi) {
-          throw new Error('Google API not loaded');
-        }
-        
-        if (!gapi.auth2) {
-          throw new Error('Google Auth2 not initialized');
-        }
-        
-        const authInstance = gapi.auth2.getAuthInstance();
-        if (!authInstance) {
-          throw new Error('Auth instance not available');
-        }
-        
-        // Check if already signed in with complete error isolation
-        try {
-          if (authInstance.isSignedIn && authInstance.isSignedIn.get()) {
-            console.log('User already signed in, using existing session');
-            const currentUser = authInstance.currentUser;
-            if (currentUser && currentUser.get()) {
-              const user = currentUser.get();
-              await this.handleAuthSuccess(user);
-              return { success: true, user: this.currentUser };
-            }
-          }
-        } catch (checkError) {
-          console.warn('Error checking existing auth, proceeding with fresh sign in:', checkError);
-        }
-        
-        // Attempt sign in with complete error isolation
-        console.log('Attempting Google sign in...');
-        let user;
-        
-        // Try multiple sign-in approaches with complete error isolation
-        const signInMethods = [
-          () => authInstance.signIn({ prompt: 'select_account' }),
-          () => authInstance.signIn({ ux_mode: 'popup', prompt: 'select_account' }),
-          () => authInstance.signIn({ ux_mode: 'popup' }),
-          () => authInstance.signIn()
-        ];
-        
-        for (let i = 0; i < signInMethods.length; i++) {
-          try {
-            user = await this.executeWithErrorIsolation(signInMethods[i]);
-            if (user) break;
-          } catch (methodError) {
-            console.warn(`Sign in method ${i + 1} failed:`, methodError);
-            if (i === signInMethods.length - 1) {
-              throw new Error('All sign in methods failed');
-            }
-          }
-        }
-        
-        if (user) {
-          await this.handleAuthSuccess(user);
-          return { success: true, user: this.currentUser };
-        } else {
-          throw new Error('No user returned from sign in');
-        }
-        
+        const user = JSON.parse(savedUser);
+        this.currentUser = user;
+        this.isAuthenticated = true;
+        this.updateUI();
+        return { success: true, user: user };
       } catch (error) {
-        console.error('Sign in failed:', error);
-        
-        // Show user-friendly error message
-        const errorMessage = error.message || 'Authentication failed. Please try again.';
-        
-        // Try to show error in UI if available
-        const errorElement = document.getElementById('auth-error');
-        if (errorElement) {
-          errorElement.textContent = errorMessage;
-          errorElement.style.display = 'block';
-        }
-        
-        return { success: false, error: errorMessage };
+        localStorage.removeItem('aurareach_user');
       }
-    });
+    }
+    return { success: false, error: 'No saved authentication found' };
   }
-  
-  /**
-   * Execute function with complete error isolation
-   */
-  async executeWithErrorIsolation(fn) {
-    return new Promise(async (resolve, reject) => {
-      // Set up temporary error handlers
-      const originalOnError = window.onerror;
-      const originalOnUnhandledRejection = window.onunhandledrejection;
-      
-      const errors = [];
-      
-      // Capture all errors during execution
-      window.onerror = (message, source, lineno, colno, error) => {
-        if (source && source.includes('gapi') || source && source.includes('google')) {
-          errors.push({ type: 'script', message, source, error });
-          return true; // Prevent default handling
-        }
-        return originalOnError ? originalOnError(message, source, lineno, colno, error) : false;
-      };
-      
-      window.onunhandledrejection = (event) => {
-        if (event.reason && (event.reason.toString().includes('gapi') || event.reason.toString().includes('google'))) {
-          errors.push({ type: 'promise', reason: event.reason });
-          event.preventDefault(); // Prevent default handling
-          return;
-        }
-        return originalOnUnhandledRejection ? originalOnUnhandledRejection(event) : undefined;
-      };
-      
-      try {
-        const result = await fn();
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      } finally {
-        // Restore original error handlers
-        window.onerror = originalOnError;
-        window.onunhandledrejection = originalOnUnhandledRejection;
-        
-        // Log captured errors as warnings
-        if (errors.length > 0) {
-          console.warn('Captured and isolated Google API errors:', errors);
-        }
-      }
-    });
-  }
-  
+
   /**
    * Sign out user
    */
-  async signOut() {
-    try {
-      const authInstance = gapi.auth2.getAuthInstance();
-      await authInstance.signOut();
+  signOut() {
+    this.currentUser = null;
+    this.isAuthenticated = false;
+    localStorage.removeItem('aurareach_user');
+    this.updateUI();
+    console.log('👋 User signed out');
+  }
+
+  /**
+   * Validate email format
+   */
+  isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
+   * Update UI based on authentication state
+   */
+  updateUI() {
+    // Update auth button
+    const authBtn = document.getElementById('auth-btn');
+    const userInfo = document.getElementById('user-info');
+    const authError = document.getElementById('auth-error');
+    
+    if (authError) {
+      authError.style.display = 'none';
+    }
+
+    if (this.isAuthenticated && this.currentUser) {
+      // User is authenticated
+      if (authBtn) {
+        authBtn.innerHTML = `
+          <i class="fas fa-user-circle"></i>
+          <span>${this.currentUser.name}</span>
+          <i class="fas fa-chevron-down"></i>
+        `;
+        authBtn.onclick = () => this.showUserMenu();
+      }
       
-      this.currentUser = null;
-      this.accessToken = null;
-      this.isAuthenticated = false;
+      if (userInfo) {
+        userInfo.innerHTML = `
+          <div class="user-details">
+            <span class="user-name">${this.currentUser.name}</span>
+            <span class="user-email">${this.currentUser.email}</span>
+            <span class="user-role">${this.currentUser.role}</span>
+          </div>
+        `;
+        userInfo.style.display = 'block';
+      }
       
-      // Clear stored session
-      localStorage.removeItem('aurareach_user');
-      localStorage.removeItem('aurareach_token');
+      // Hide auth modal if open
+      const authModal = document.getElementById('auth-modal');
+      if (authModal) {
+        authModal.style.display = 'none';
+      }
       
-      // Notify listeners
-      this.notifyAuthListeners('signout');
+    } else {
+      // User is not authenticated
+      if (authBtn) {
+        authBtn.innerHTML = `
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Sign In</span>
+        `;
+        authBtn.onclick = () => this.showAuthModal();
+      }
       
-      return { success: true };
-    } catch (error) {
-      console.error('Sign out failed:', error);
-      return { success: false, error: error.message };
+      if (userInfo) {
+        userInfo.style.display = 'none';
+      }
     }
   }
-  
+
   /**
-   * Handle successful authentication
+   * Show authentication modal
    */
-  async handleAuthSuccess(googleUser) {
+  showAuthModal() {
+    let authModal = document.getElementById('auth-modal');
+    
+    if (!authModal) {
+      // Create auth modal
+      authModal = document.createElement('div');
+      authModal.id = 'auth-modal';
+      authModal.innerHTML = `
+        <div class="modal-overlay">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3><i class="fas fa-sign-in-alt"></i> Sign In to AuraReach</h3>
+              <button class="close-btn" onclick="authManager.hideAuthModal()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="auth-form">
+                <div class="form-group">
+                  <label for="auth-email">Email Address</label>
+                  <input type="email" id="auth-email" placeholder="Enter your email address" />
+                </div>
+                <div id="auth-error" class="error-message" style="display: none;"></div>
+                <button id="auth-submit-btn" class="auth-btn primary" onclick="authManager.handleEmailAuth()">
+                  <i class="fas fa-sign-in-alt"></i>
+                  Sign In
+                </button>
+                <div class="auth-info">
+                  <p><i class="fas fa-info-circle"></i> Enter your authorized email address to access AuraReach</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add styles
+      authModal.innerHTML += `
+        <style>
+          #auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+          }
+          
+          .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+          }
+          
+          .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .modal-header h3 {
+            margin: 0;
+            color: #1a1a1a;
+            font-size: 20px;
+            font-weight: 600;
+          }
+          
+          .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+          }
+          
+          .close-btn:hover {
+            background: #f5f5f5;
+            color: #333;
+          }
+          
+          .modal-body {
+            padding: 24px;
+          }
+          
+          .form-group {
+            margin-bottom: 20px;
+          }
+          
+          .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+          }
+          
+          .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+          }
+          
+          .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+          }
+          
+          .auth-btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          }
+          
+          .auth-btn.primary {
+            background: #4f46e5;
+            color: white;
+          }
+          
+          .auth-btn.primary:hover {
+            background: #4338ca;
+          }
+          
+          .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+          }
+          
+          .auth-info {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+          }
+          
+          .auth-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+          }
+        </style>
+      `;
+      
+      document.body.appendChild(authModal);
+    }
+    
+    authModal.style.display = 'flex';
+    
+    // Focus on email input
+    setTimeout(() => {
+      const emailInput = document.getElementById('auth-email');
+      if (emailInput) emailInput.focus();
+    }, 100);
+  }
+
+  /**
+   * Hide authentication modal
+   */
+  hideAuthModal() {
+    const authModal = document.getElementById('auth-modal');
+    if (authModal) {
+      authModal.style.display = 'none';
+    }
+  }
+
+  /**
+   * Handle email authentication
+   */
+  async handleEmailAuth() {
+    const emailInput = document.getElementById('auth-email');
+    const errorDiv = document.getElementById('auth-error');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    
+    if (!emailInput) return;
+    
+    const email = emailInput.value.trim();
+    
+    // Clear previous errors
+    if (errorDiv) {
+      errorDiv.style.display = 'none';
+    }
+    
+    // Show loading state
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+      submitBtn.disabled = true;
+    }
+    
     try {
-      const profile = googleUser.getBasicProfile();
-      const authResponse = googleUser.getAuthResponse();
+      const result = await this.authenticateWithEmail(email);
       
-      this.accessToken = authResponse.access_token;
-      
-      // Authenticate with backend
-      const backendAuth = await this.authenticateWithBackend(this.accessToken);
-      
-      if (backendAuth.success) {
-        this.currentUser = {
-          id: profile.getId(),
-          email: profile.getEmail(),
-          name: profile.getName(),
-          picture: profile.getImageUrl(),
-          ...backendAuth.user
-        };
-        
-        this.isAuthenticated = true;
-        
-        // Store session if remember user is enabled
-        if (AUTH_CONFIG.AUTH_SETTINGS.rememberUser) {
-          localStorage.setItem('aurareach_user', JSON.stringify(this.currentUser));
-          localStorage.setItem('aurareach_token', this.accessToken);
-        }
-        
-        // Notify listeners
-        this.notifyAuthListeners('signin', this.currentUser);
-        
-        console.log('✅ User authenticated successfully:', this.currentUser.email);
+      if (result.success) {
+        this.hideAuthModal();
       } else {
-        throw new Error(backendAuth.error || 'Backend authentication failed');
+        throw new Error(result.error);
       }
       
     } catch (error) {
-      console.error('Authentication handling failed:', error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Authenticate with backend (Google Apps Script)
-   */
-  async authenticateWithBackend(accessToken) {
-    try {
-      const response = await fetch(AUTH_CONFIG.APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'authenticateUserOAuth',
-          accessToken: accessToken
-        })
-      });
-      
-      const result = await response.json();
-      return result;
-      
-    } catch (error) {
-      console.error('Backend authentication failed:', error);
-      return { success: false, error: error.message };
-    }
-  }
-  
-  /**
-   * Get current user limits from backend
-   */
-  async getUserLimits() {
-    if (!this.isAuthenticated) {
-      return { success: false, error: 'User not authenticated' };
-    }
-    
-    try {
-      const response = await fetch(AUTH_CONFIG.APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'getUserLimits',
-          email: this.currentUser.email
-        })
-      });
-      
-      const result = await response.json();
-      return result;
-      
-    } catch (error) {
-      console.error('Failed to get user limits:', error);
-      return { success: false, error: error.message };
-    }
-  }
-  
-  /**
-   * Update user limits in backend
-   */
-  async updateUserLimits(limits) {
-    if (!this.isAuthenticated) {
-      return { success: false, error: 'User not authenticated' };
-    }
-    
-    try {
-      const response = await fetch(AUTH_CONFIG.APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'updateUserLimits',
-          email: this.currentUser.email,
-          limits: limits
-        })
-      });
-      
-      const result = await response.json();
-      return result;
-      
-    } catch (error) {
-      console.error('Failed to update user limits:', error);
-      return { success: false, error: error.message };
-    }
-  }
-  
-  /**
-   * Add authentication event listener
-   */
-  addAuthListener(callback) {
-    this.authListeners.push(callback);
-  }
-  
-  /**
-   * Remove authentication event listener
-   */
-  removeAuthListener(callback) {
-    const index = this.authListeners.indexOf(callback);
-    if (index > -1) {
-      this.authListeners.splice(index, 1);
-    }
-  }
-  
-  /**
-   * Notify all authentication listeners
-   */
-  notifyAuthListeners(event, data = null) {
-    this.authListeners.forEach(callback => {
-      try {
-        callback(event, data);
-      } catch (error) {
-        console.error('Auth listener error:', error);
+      if (errorDiv) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
       }
-    });
-  }
-  
-  /**
-   * Check if user has specific permission
-   */
-  hasPermission(permission) {
-    if (!this.isAuthenticated || !this.currentUser) {
-      return false;
-    }
-    
-    return this.currentUser.permissions?.includes(permission) || 
-           this.currentUser.role === 'admin';
-  }
-  
-  /**
-   * Get user's current usage and limits
-   */
-  async refreshUserData() {
-    if (!this.isAuthenticated) {
-      return { success: false, error: 'User not authenticated' };
-    }
-    
-    try {
-      const limitsResult = await this.getUserLimits();
-      if (limitsResult.success) {
-        this.currentUser.limits = limitsResult.limits;
-        this.currentUser.usage = limitsResult.usage;
-        this.currentUser.remaining = limitsResult.remaining;
-        
-        // Update stored user data
-        if (AUTH_CONFIG.AUTH_SETTINGS.rememberUser) {
-          localStorage.setItem('aurareach_user', JSON.stringify(this.currentUser));
-        }
-        
-        // Notify listeners of data update
-        this.notifyAuthListeners('dataRefresh', this.currentUser);
+    } finally {
+      // Reset button
+      if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        submitBtn.disabled = false;
       }
-      
-      return limitsResult;
-      
-    } catch (error) {
-      console.error('Failed to refresh user data:', error);
-      return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Show user menu
+   */
+  showUserMenu() {
+    // Simple implementation - just sign out for now
+    if (confirm('Sign out of AuraReach?')) {
+      this.signOut();
+    }
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser() {
+    return this.currentUser;
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isUserAuthenticated() {
+    return this.isAuthenticated;
   }
 }
 
-// Aggressive postMessage error suppression
-(function() {
-  // Override postMessage to catch and suppress Google API errors
-  const originalPostMessage = window.postMessage;
-  window.postMessage = function(message, targetOrigin, transfer) {
-    try {
-      return originalPostMessage.call(this, message, targetOrigin, transfer);
-    } catch (error) {
-      if (error.message && error.message.includes('postMessage')) {
-        console.warn('Suppressed postMessage error:', error);
-        return;
-      }
-      throw error;
-    }
-  };
-
-  // Override iframe postMessage as well
-  const originalCreateElement = document.createElement;
-  document.createElement = function(tagName) {
-    const element = originalCreateElement.call(this, tagName);
-    if (tagName.toLowerCase() === 'iframe') {
-      const originalContentWindow = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'contentWindow');
-      if (originalContentWindow) {
-        Object.defineProperty(element, 'contentWindow', {
-          get: function() {
-            const contentWindow = originalContentWindow.get.call(this);
-            if (contentWindow && contentWindow.postMessage) {
-              const originalIframePostMessage = contentWindow.postMessage;
-              contentWindow.postMessage = function(message, targetOrigin, transfer) {
-                try {
-                  return originalIframePostMessage.call(this, message, targetOrigin, transfer);
-                } catch (error) {
-                  console.warn('Suppressed iframe postMessage error:', error);
-                  return;
-                }
-              };
-            }
-            return contentWindow;
-          }
-        });
+// Initialize authentication when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  window.authManager = new SimpleAuthManager();
+  
+  // Handle Enter key in auth modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const authModal = document.getElementById('auth-modal');
+      if (authModal && authModal.style.display !== 'none') {
+        window.authManager.handleEmailAuth();
       }
     }
-    return element;
-  };
-})();
-
-// Global error handler for Google API internal errors
-window.addEventListener('error', (event) => {
-  const errorMessage = event.error ? event.error.message : event.message;
-  if (event.filename && (event.filename.includes('gapi') || event.filename.includes('google')) ||
-      errorMessage && (errorMessage.includes('postMessage') || errorMessage.includes('iframe'))) {
-    console.warn('Suppressed Google API internal error:', event.error || event.message);
-    event.preventDefault();
-    event.stopPropagation();
-    return true;
-  }
+  });
 });
-
-window.addEventListener('unhandledrejection', (event) => {
-  if (event.reason && event.reason.toString && 
-      (event.reason.toString().includes('gapi') || 
-       event.reason.toString().includes('google') ||
-       event.reason.toString().includes('postMessage') ||
-       event.reason.toString().includes('iframe') ||
-       event.reason.toString().includes('null'))) {
-    console.warn('Suppressed Google API internal promise rejection:', event.reason);
-    event.preventDefault();
-    event.stopPropagation();
-  }
-});
-
-// Additional console error suppression
-const originalConsoleError = console.error;
-console.error = function(...args) {
-  const message = args.join(' ');
-  if (message.includes('postMessage') || 
-      message.includes('gapi') || 
-      message.includes('google') ||
-      message.includes('iframe')) {
-    console.warn('Suppressed console error:', ...args);
-    return;
-  }
-  return originalConsoleError.apply(console, args);
-};
 
 // Create global auth manager instance
-const authManager = new AuthManager();
-
-// Export for use in other files
-window.authManager = authManager;
-window.AUTH_CONFIG = AUTH_CONFIG;
-
-console.log('🔐 AuraReach Authentication System Loaded');
+const authManager = new SimpleAuthManager();

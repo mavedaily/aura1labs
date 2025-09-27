@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://apis.google.com https://*.gstatic.com https://accounts.google.com https://ssl.gstatic.com https://www.google.com https://*.googleapis.com; frame-src 'self' https://accounts.google.com https://www.google.com https://*.google.com; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://script.google.com https://docs.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
-    <meta http-equiv="Permissions-Policy" content="cross-origin-isolated=(), iframe-sandbox=()">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data:; frame-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
     <title>AuraReach - Professional Email Management Platform</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="tutorial.css">
@@ -12,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
 </head>
 <body>
     <!-- Header -->
@@ -438,11 +437,11 @@
                         
                         <div class="login-content">
                             <h2>Welcome Back</h2>
-                            <p>Sign in with your Google account to continue</p>
+                            <p>Sign in with your authorized email to continue</p>
                             
-                            <button id="google-signin-btn" class="google-signin-btn">
-                                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
-                                <span>Continue with Google</span>
+                            <button id="auth-btn" class="auth-btn">
+                                <i class="fas fa-envelope"></i>
+                                <span>Sign In with Email</span>
                             </button>
                             
                             <div class="login-features">
@@ -520,32 +519,31 @@
                         font-size: 14px;
                     }
                     
-                    .google-signin-btn {
+                    .auth-btn {
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         gap: 12px;
                         width: 100%;
                         padding: 12px 24px;
-                        background: white;
-                        border: 2px solid var(--border-color);
+                        background: var(--primary-color);
+                        border: 2px solid var(--primary-color);
                         border-radius: 8px;
+                        color: white;
                         font-size: 16px;
                         font-weight: 500;
-                        color: var(--text-primary);
                         cursor: pointer;
                         transition: all 0.2s ease;
                         margin-bottom: 30px;
                     }
                     
-                    .google-signin-btn:hover {
-                        border-color: var(--primary-color);
-                        box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+                    .auth-btn:hover {
+                        background: var(--primary-hover);
+                        border-color: var(--primary-hover);
                     }
                     
-                    .google-signin-btn img {
-                        width: 20px;
-                        height: 20px;
+                    .auth-btn i {
+                        font-size: 18px;
                     }
                     
                     .login-features {
@@ -568,22 +566,9 @@
                 </style>
             `;
             
-            // Add event listener for Google sign-in
-            document.getElementById('google-signin-btn').addEventListener('click', async () => {
-                const btn = document.getElementById('google-signin-btn');
-                btn.innerHTML = '<div class="loading-spinner"></div><span>Signing in...</span>';
-                btn.disabled = true;
-                
-                try {
-                    const result = await authManager.signIn();
-                    if (!result.success) {
-                        throw new Error(result.error);
-                    }
-                } catch (error) {
-                    alert('Sign in failed: ' + error.message);
-                    btn.innerHTML = '<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"><span>Continue with Google</span>';
-                    btn.disabled = false;
-                }
+            // Add event listener for simple authentication
+            document.getElementById('auth-btn').addEventListener('click', () => {
+                authManager.showAuthModal();
             });
         }
         
