@@ -9,6 +9,8 @@ class SimpleAuthManager {
     this.isAuthenticated = false;
     this.userDatabase = [
       // Add authorized users here
+      { email: 'mananvermabusiness@gmail.com', name: 'Manan Verma', role: 'admin' },
+      { email: 'rareauramedia@gmail.com', name: 'Rare Aura Media', role: 'admin' },
       { email: 'admin@aurareachmedia.com', name: 'Admin User', role: 'admin' },
       { email: 'user@aurareachmedia.com', name: 'Regular User', role: 'user' },
       // Add more users as needed
@@ -63,6 +65,9 @@ class SimpleAuthManager {
       // Update UI
       this.updateUI();
       
+      // Trigger auth listeners
+      this.triggerAuthListeners('signin', user);
+      
       console.log('✅ Authentication successful:', user.email);
       return { success: true, user: user };
       
@@ -99,6 +104,10 @@ class SimpleAuthManager {
     this.isAuthenticated = false;
     localStorage.removeItem('aurareach_user');
     this.updateUI();
+    
+    // Trigger auth listeners
+    this.triggerAuthListeners('signout', null);
+    
     console.log('👋 User signed out');
   }
 
@@ -440,6 +449,28 @@ class SimpleAuthManager {
    */
   isUserAuthenticated() {
     return this.isAuthenticated;
+  }
+
+  /**
+   * Add authentication listener (for compatibility with existing code)
+   */
+  addAuthListener(callback) {
+    // Store the callback for future use
+    this.authCallback = callback;
+    
+    // If already authenticated, trigger callback immediately
+    if (this.isAuthenticated && this.currentUser) {
+      callback('signin', this.currentUser);
+    }
+  }
+
+  /**
+   * Trigger auth listeners when authentication state changes
+   */
+  triggerAuthListeners(event, data) {
+    if (this.authCallback) {
+      this.authCallback(event, data);
+    }
   }
 }
 
