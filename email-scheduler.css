@@ -1,0 +1,567 @@
+/* Email Scheduling System Styles */
+
+/* Schedule Section */
+.schedule-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.schedule-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Quick Schedule Buttons */
+.quick-schedule {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.quick-schedule-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 6px;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-schedule-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Schedule Form */
+.schedule-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.schedule-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.schedule-form-full {
+    grid-column: 1 / -1;
+}
+
+.datetime-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    align-items: end;
+}
+
+.datetime-input {
+    padding: 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.datetime-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Schedule Warning */
+.schedule-warning {
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.schedule-warning.info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--primary-color);
+}
+
+.schedule-warning.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* Recurring Options */
+.recurring-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.recurring-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.recurring-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.recurring-options {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.recurring-options.active {
+    display: grid;
+}
+
+.custom-recurring-options {
+    display: none;
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+/* Scheduled Emails List */
+.scheduled-emails-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.scheduled-emails-container {
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.scheduled-email-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.scheduled-email-item:last-child {
+    border-bottom: none;
+}
+
+.scheduled-email-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.scheduled-email-item.overdue {
+    border-left: 3px solid #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.email-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.email-subject {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.email-recipients {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.email-schedule {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.email-status {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.email-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+/* Status Classes */
+.status-scheduled {
+    color: var(--primary-color);
+}
+
+.status-sending {
+    color: #f59e0b;
+}
+
+.status-sent {
+    color: #10b981;
+}
+
+.status-failed {
+    color: #ef4444;
+}
+
+/* Recurring Badge */
+.recurring-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    color: var(--primary-color);
+    margin-left: 0.5rem;
+}
+
+/* Schedule Statistics */
+.schedule-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.schedule-stat-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.schedule-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.schedule-stat-number.scheduled {
+    color: var(--primary-color);
+}
+
+.schedule-stat-number.sent {
+    color: #10b981;
+}
+
+.schedule-stat-number.failed {
+    color: #ef4444;
+}
+
+.schedule-stat-number.pending {
+    color: #f59e0b;
+}
+
+.schedule-stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Schedule Modal */
+.schedule-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedule-modal .modal-content {
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Email Details */
+.email-details {
+    display: grid;
+    gap: 1rem;
+}
+
+.detail-group {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.detail-group label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+.email-content-preview {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* No Scheduled Emails */
+.no-scheduled-emails {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 2rem;
+}
+
+/* Timezone Selector */
+.timezone-select {
+    padding: 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timezone-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Recipients Input */
+.recipients-input {
+    min-height: 80px;
+    resize: vertical;
+    padding: 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.recipients-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.recipients-input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Schedule Actions */
+.schedule-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* Loading States */
+.schedule-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.schedule-loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--glass-border);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .schedule-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .datetime-group {
+        grid-template-columns: 1fr;
+    }
+
+    .recurring-options {
+        grid-template-columns: 1fr;
+    }
+
+    .scheduled-email-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .email-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    .detail-group {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .schedule-actions {
+        justify-content: center;
+    }
+
+    .quick-schedule {
+        justify-content: center;
+    }
+
+    .schedule-stats {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .schedule-section,
+    .scheduled-emails-section {
+        padding: 1rem;
+    }
+
+    .schedule-stat-card {
+        padding: 1rem;
+    }
+
+    .schedule-stat-number {
+        font-size: 1.5rem;
+    }
+
+    .email-actions {
+        flex-direction: column;
+    }
+
+    .quick-schedule-btn {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* Animation for scheduled items */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.scheduled-email-item {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Pulse animation for sending status */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.status-sending {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Success/Error animations */
+@keyframes fadeInSuccess {
+    from {
+        background: rgba(16, 185, 129, 0.2);
+    }
+    to {
+        background: transparent;
+    }
+}
+
+@keyframes fadeInError {
+    from {
+        background: rgba(239, 68, 68, 0.2);
+    }
+    to {
+        background: transparent;
+    }
+}
+
+.status-sent {
+    animation: fadeInSuccess 2s ease-out;
+}
+
+.status-failed {
+    animation: fadeInError 2s ease-out;
+}

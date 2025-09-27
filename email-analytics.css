@@ -1,0 +1,628 @@
+/* Email Analytics Dashboard Styles */
+
+/* Analytics Overview Cards */
+.analytics-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.analytics-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.analytics-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px 15px 0 0;
+}
+
+.analytics-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.analytics-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.analytics-card p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Charts Section */
+.analytics-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    min-height: 300px;
+}
+
+.chart-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+}
+
+/* Daily Activity Chart */
+.chart-bars {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    height: 200px;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.chart-bar-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.chart-bar {
+    width: 100%;
+    max-width: 30px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px 4px 0 0;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+    min-height: 2px;
+}
+
+.chart-bar:hover {
+    background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+    transform: scaleY(1.1);
+}
+
+.chart-label {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+}
+
+/* Performance Chart */
+.performance-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.chart-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.legend-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9em;
+}
+
+/* Campaigns Analytics */
+.campaigns-analytics {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.campaigns-analytics h3 {
+    margin: 0 0 20px 0;
+    color: white;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.create-campaign-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-campaign-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+#campaignsAnalyticsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.campaign-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.campaign-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.campaign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.campaign-header h4 {
+    margin: 0;
+    color: white;
+    font-size: 1.1em;
+}
+
+.campaign-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.campaign-status.draft {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.campaign-status.sent {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.campaign-status.scheduled {
+    background: rgba(0, 123, 255, 0.2);
+    color: #007bff;
+    border: 1px solid rgba(0, 123, 255, 0.3);
+}
+
+.campaign-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: white;
+}
+
+.campaign-date {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+}
+
+/* Recent Activity */
+.recent-activity {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.recent-activity h3 {
+    margin: 0 0 20px 0;
+    color: white;
+    font-size: 1.3em;
+}
+
+#recentActivity {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.activity-icon.sent {
+    background: rgba(0, 123, 255, 0.2);
+    color: #007bff;
+}
+
+.activity-icon.delivered {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.activity-icon.opened {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.activity-icon.bounced {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.activity-details {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9em;
+}
+
+.activity-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8em;
+}
+
+.activity-stats .opens {
+    color: #ffc107;
+}
+
+.activity-stats .clicks {
+    color: #007bff;
+}
+
+/* Top Performers */
+.top-performers {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.top-performers h3 {
+    margin: 0 0 20px 0;
+    color: white;
+    font-size: 1.3em;
+}
+
+#topPerformers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.performer-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.performer-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+.performer-name {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.performer-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.performer-metric {
+    text-align: center;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 4px;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Analytics Controls */
+.analytics-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+}
+
+.analytics-controls h2 {
+    margin: 0;
+    color: white;
+    font-size: 1.5em;
+}
+
+.controls-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.analytics-controls select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 0.9em;
+}
+
+.analytics-controls select option {
+    background: #2c3e50;
+    color: white;
+}
+
+.analytics-controls button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.analytics-controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* No Data State */
+.no-data {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    padding: 40px 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .analytics-overview {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .analytics-charts {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .analytics-controls {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .controls-group {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    #campaignsAnalyticsList {
+        grid-template-columns: 1fr;
+    }
+    
+    .campaign-stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .performer-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .activity-stats {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .analytics-card {
+        padding: 15px;
+    }
+    
+    .analytics-card h3 {
+        font-size: 2em;
+    }
+    
+    .chart-container {
+        padding: 20px;
+        min-height: 250px;
+    }
+    
+    .chart-bars {
+        height: 150px;
+    }
+    
+    .campaign-card,
+    .performer-card {
+        padding: 15px;
+    }
+    
+    .activity-item {
+        padding: 12px;
+    }
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Scrollbar Styling */
+#recentActivity::-webkit-scrollbar {
+    width: 6px;
+}
+
+#recentActivity::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+#recentActivity::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+#recentActivity::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

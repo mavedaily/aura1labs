@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraReach - Authentication Test</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+        
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+        
+        .user-info {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        
+        .user-details {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔐 AuraReach Authentication Test</h1>
+        <p>This page tests the Google OAuth + Excel authentication system</p>
+        
+        <!-- Configuration Test -->
+        <div class="test-section">
+            <h3>📋 Configuration Test</h3>
+            <button class="btn" onclick="testConfiguration()">Test Configuration</button>
+            <div id="configResult" class="test-result info" style="display: none;"></div>
+        </div>
+        
+        <!-- Google OAuth Test -->
+        <div class="test-section">
+            <h3>🔐 Google OAuth Test</h3>
+            <button class="btn" onclick="testGoogleAuth()">Initialize Google Auth</button>
+            <button class="btn" onclick="signInTest()">Sign In</button>
+            <button class="btn" onclick="signOutTest()">Sign Out</button>
+            <div id="authResult" class="test-result info" style="display: none;"></div>
+            
+            <div id="userInfo" class="user-info" style="display: none;">
+                <div class="user-details">
+                    <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+                    <div>
+                        <div><strong>Name:</strong> <span id="userName"></span></div>
+                        <div><strong>Email:</strong> <span id="userEmail"></span></div>
+                        <div><strong>Role:</strong> <span id="userRole"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Apps Script Test -->
+        <div class="test-section">
+            <h3>⚙️ Apps Script Connection Test</h3>
+            <button class="btn" onclick="testAppsScript()">Test Apps Script</button>
+            <button class="btn" onclick="testDatabaseConnection()">Test Database</button>
+            <div id="scriptResult" class="test-result info" style="display: none;"></div>
+        </div>
+        
+        <!-- User Management Test -->
+        <div class="test-section">
+            <h3>👥 User Management Test</h3>
+            <button class="btn" onclick="testUserLimits()">Test User Limits</button>
+            <button class="btn" onclick="testPermissions()">Test Permissions</button>
+            <div id="userResult" class="test-result info" style="display: none;"></div>
+        </div>
+        
+        <!-- System Status -->
+        <div class="test-section">
+            <h3>📊 System Status</h3>
+            <button class="btn" onclick="runFullTest()">Run Full System Test</button>
+            <div id="statusResult" class="test-result info" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Include authentication scripts -->
+    <script src="auth-config.js"></script>
+    
+    <script>
+        // Use the global authManager from auth-config.js
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            showResult('configResult', 'info', 'Page loaded. Ready for testing.');
+        });
+        
+        // Test configuration
+        function testConfiguration() {
+            try {
+                const config = {
+                    'Excel Sheet ID': AUTH_CONFIG.EXCEL_SHEET_ID || 'Not configured',
+                    'Google OAuth Client ID': AUTH_CONFIG.GOOGLE_OAUTH_CLIENT_ID || 'Not configured',
+                    'Apps Script URL': AUTH_CONFIG.APPS_SCRIPT_URL || 'Not configured',
+                    'Auto Login': AUTH_CONFIG.AUTO_LOGIN ? 'Enabled' : 'Disabled',
+                    'Session Timeout': AUTH_CONFIG.SESSION_TIMEOUT_MINUTES + ' minutes'
+                };
+                
+                showResult('configResult', 'success', 'Configuration loaded successfully:\n' + JSON.stringify(config, null, 2));
+            } catch (error) {
+                showResult('configResult', 'error', 'Configuration test failed: ' + error.message);
+            }
+        }
+        
+        // Test Google Auth initialization
+        async function testGoogleAuth() {
+            try {
+                if (typeof window.authManager === 'undefined') {
+                    throw new Error('AuthManager not found. Check auth-config.js');
+                }
+                
+                await window.authManager.init();
+                
+                showResult('authResult', 'success', 'Google Auth initialized successfully');
+            } catch (error) {
+                showResult('authResult', 'error', 'Google Auth initialization failed: ' + error.message);
+            }
+        }
+        
+        // Test sign in
+        async function signInTest() {
+            try {
+                if (!window.authManager) {
+                    await testGoogleAuth();
+                }
+                
+                const result = await window.authManager.signIn();
+                
+                if (result.success) {
+                    showResult('authResult', 'success', 'Sign in successful');
+                    displayUserInfo(result.user);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                showResult('authResult', 'error', 'Sign in failed: ' + error.message);
+            }
+        }
+        
+        // Test sign out
+        async function signOutTest() {
+            try {
+                if (!window.authManager) {
+                    throw new Error('AuthManager not initialized');
+                }
+                
+                await window.authManager.signOut();
+                showResult('authResult', 'success', 'Sign out successful');
+                hideUserInfo();
+            } catch (error) {
+                showResult('authResult', 'error', 'Sign out failed: ' + error.message);
+            }
+        }
+        
+        // Test Apps Script connection
+        async function testAppsScript() {
+            try {
+                const scriptUrl = AUTH_CONFIG.APPS_SCRIPT_URL;
+                if (!scriptUrl) {
+                    throw new Error('Apps Script URL not configured');
+                }
+                
+                const response = await fetch(scriptUrl + '?test=true');
+                const result = await response.text();
+                
+                showResult('scriptResult', 'success', 'Apps Script connection successful:\n' + result);
+            } catch (error) {
+                showResult('scriptResult', 'error', 'Apps Script connection failed: ' + error.message);
+            }
+        }
+        
+        // Test database connection
+        async function testDatabaseConnection() {
+            try {
+                if (!window.authManager) {
+                    throw new Error('AuthManager not initialized');
+                }
+                
+                const result = await window.authManager.testDatabaseConnection();
+                
+                if (result.success) {
+                    showResult('scriptResult', 'success', 'Database connection successful');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                showResult('scriptResult', 'error', 'Database connection failed: ' + error.message);
+            }
+        }
+        
+        // Test user limits
+        async function testUserLimits() {
+            try {
+                if (!window.authManager || !window.authManager.isAuthenticated) {
+                    throw new Error('User not authenticated');
+                }
+                
+                const limits = await window.authManager.getUserLimits();
+                showResult('userResult', 'success', 'User limits retrieved:\n' + JSON.stringify(limits, null, 2));
+            } catch (error) {
+                showResult('userResult', 'error', 'User limits test failed: ' + error.message);
+            }
+        }
+        
+        // Test permissions
+        async function testPermissions() {
+            try {
+                if (!window.authManager || !window.authManager.isAuthenticated) {
+                    throw new Error('User not authenticated');
+                }
+                
+                const permissions = {
+                    'Can Send Email': await window.authManager.checkPermission('send_email'),
+                    'Can Manage Users': await window.authManager.checkPermission('manage_users'),
+                    'Can View Analytics': await window.authManager.checkPermission('view_analytics'),
+                    'Can Export Data': await window.authManager.checkPermission('export_data')
+                };
+                
+                showResult('userResult', 'success', 'Permissions checked:\n' + JSON.stringify(permissions, null, 2));
+            } catch (error) {
+                showResult('userResult', 'error', 'Permissions test failed: ' + error.message);
+            }
+        }
+        
+        // Run full system test
+        async function runFullTest() {
+            showResult('statusResult', 'info', 'Running full system test...');
+            
+            const tests = [
+                { name: 'Configuration', fn: testConfiguration },
+                { name: 'Google Auth Init', fn: testGoogleAuth },
+                { name: 'Apps Script', fn: testAppsScript }
+            ];
+            
+            const results = [];
+            
+            for (const test of tests) {
+                try {
+                    await test.fn();
+                    results.push(`✅ ${test.name}: PASSED`);
+                } catch (error) {
+                    results.push(`❌ ${test.name}: FAILED - ${error.message}`);
+                }
+            }
+            
+            showResult('statusResult', 'info', 'Full system test completed:\n' + results.join('\n'));
+        }
+        
+        // Display user info
+        function displayUserInfo(user) {
+            document.getElementById('userAvatar').src = user.picture || '';
+            document.getElementById('userName').textContent = user.name || 'N/A';
+            document.getElementById('userEmail').textContent = user.email || 'N/A';
+            document.getElementById('userRole').textContent = user.role || 'user';
+            document.getElementById('userInfo').style.display = 'block';
+        }
+        
+        // Hide user info
+        function hideUserInfo() {
+            document.getElementById('userInfo').style.display = 'none';
+        }
+        
+        // Show result
+        function showResult(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+/* Rich Text Editor Styles */
+.rich-editor-container {
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow: hidden;
+}
+
+.editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--glass-border);
+    align-items: center;
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 0 8px;
+    border-right: 1px solid var(--glass-border);
+}
+
+.toolbar-group:last-child {
+    border-right: none;
+}
+
+.toolbar-btn {
+    padding: 6px 10px;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.toolbar-btn:active {
+    transform: translateY(0);
+}
+
+.toolbar-select {
+    padding: 4px 8px;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.toolbar-color {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+}
+
+.rich-editor {
+    min-height: 300px;
+    padding: 16px;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.rich-editor:empty::before {
+    content: attr(placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.rich-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+.rich-editor table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+}
+
+.rich-editor table td,
+.rich-editor table th {
+    border: 1px solid var(--glass-border);
+    padding: 8px;
+    text-align: left;
+}
+
+.rich-editor table th {
+    background: var(--glass-bg);
+    font-weight: 600;
+}
+
+.rich-editor ul,
+.rich-editor ol {
+    padding-left: 24px;
+    margin: 8px 0;
+}
+
+.rich-editor blockquote {
+    border-left: 4px solid var(--info);
+    padding-left: 16px;
+    margin: 12px 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+.editor-footer {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.attachment-area {
+    flex: 1;
+    min-width: 200px;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.attachments-list {
+    margin-top: 12px;
+}
+
+.attachments-header {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    margin-bottom: 4px;
+}
+
+.attachment-name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.attachment-size {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.attachment-remove {
+    padding: 4px;
+    border: none;
+    background: var(--error);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attachment-remove:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+/* Email Preview Modal */
+.email-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.preview-field {
+    margin-bottom: 20px;
+}
+
+.preview-field strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.preview-content {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Recipient Tags */
+.recipient-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.recipient-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: var(--info);
+    color: white;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.recipient-tag-remove {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.recipient-tag-remove:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Template Selector */
+.template-selector {
+    margin-bottom: 16px;
+}
+
+.template-selector select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+/* Variable Insertion */
+.variable-menu {
+    position: absolute;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: var(--glass-shadow);
+    padding: 8px 0;
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.variable-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.variable-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Drafts Section */
+.drafts-section {
+    margin-top: 24px;
+}
+
+.draft-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.draft-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.draft-info {
+    flex: 1;
+}
+
+.draft-subject {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.draft-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.draft-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Email Composition Enhancements */
+.compose-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.compose-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.email-field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.email-field-full {
+    grid-column: 1 / -1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .editor-toolbar {
+        padding: 8px;
+        gap: 4px;
+    }
+    
+    .toolbar-group {
+        padding: 0 4px;
+    }
+    
+    .toolbar-btn {
+        min-width: 28px;
+        height: 28px;
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    .rich-editor {
+        padding: 12px;
+        min-height: 200px;
+    }
+    
+    .editor-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .editor-actions {
+        justify-content: center;
+    }
+    
+    .modal-content {
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 16px;
+    }
+    
+    .email-field-group {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* Animation for smooth transitions */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rich-editor-container {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.attachment-item {
+    animation: slideInUp 0.2s ease-out;
+}
+
+/* Focus states */
+.rich-editor:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.toolbar-btn:focus {
+    outline: 2px solid var(--info);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .editor-toolbar,
+    .editor-footer {
+        display: none;
+    }
+    
+    .rich-editor {
+        border: none;
+        padding: 0;
+    }
+}

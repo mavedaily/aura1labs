@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraReach Admin Panel</title>
+    <link rel="stylesheet" href="admin-panel.css">
+    <link rel="stylesheet" href="tutorial.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-envelope-open-text"></i>
+                <span>AuraReach Admin</span>
+            </div>
+            <nav class="header-nav">
+                <button class="nav-link help-btn" data-tutorial="adminPanel">
+                    <i class="fas fa-question-circle"></i>
+                    Tutorial
+                </button>
+                <a href="gmail-sender.html" class="nav-link">
+                    <i class="fas fa-envelope"></i>
+                    Email Sender
+                </a>
+                <button class="nav-link" onclick="adminPanel.logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </nav>
+            <div id="current-user-info" class="user-info-header"></div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" data-tab="accounts">
+                <i class="fas fa-envelope"></i>
+                <span>Gmail Accounts</span>
+            </li>
+            <li class="nav-item" data-tab="users">
+                <i class="fas fa-users"></i>
+                <span>User Management</span>
+            </li>
+            <li class="nav-item" data-tab="analytics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Analytics</span>
+            </li>
+            <li class="nav-item" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="page-header">
+                <h1>System Dashboard</h1>
+                <p>Overview of your email management system</p>
+            </div>
+
+            <!-- System Status -->
+            <div class="status-section">
+                <h2>System Status</h2>
+                <div id="system-status" class="status-container"></div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-grid">
+                    <button class="action-card" onclick="showAddAccountModal()">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Gmail Account</span>
+                    </button>
+                    <button class="action-card" onclick="showAddUserModal()">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Add User</span>
+                    </button>
+                    <button class="action-card" onclick="openEmailSender()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send Emails</span>
+                    </button>
+                    <button class="action-card" onclick="exportAnalytics()">
+                        <i class="fas fa-download"></i>
+                        <span>Export Data</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h2>Recent Activity</h2>
+                <div id="activity-feed" class="activity-container"></div>
+            </div>
+        </div>
+
+        <!-- Gmail Accounts Tab -->
+        <div id="accounts" class="tab-content">
+            <div class="page-header">
+                <h1>Gmail Accounts</h1>
+                <button class="btn btn-primary" onclick="showAddAccountModal()">
+                    <i class="fas fa-plus"></i> Add Account
+                </button>
+            </div>
+
+            <div class="accounts-section">
+                <div id="accounts-list" class="accounts-grid"></div>
+            </div>
+        </div>
+
+        <!-- User Management Tab -->
+        <div id="users" class="tab-content">
+            <div class="page-header">
+                <h1>User Management</h1>
+                <button class="btn btn-primary" onclick="showAddUserModal()">
+                    <i class="fas fa-user-plus"></i> Add User
+                </button>
+            </div>
+
+            <div class="users-section">
+                <div id="users-list" class="users-grid"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="page-header">
+                <h1>Analytics & Reports</h1>
+                <div class="date-range-picker">
+                    <input type="date" id="start-date" class="form-control">
+                    <span>to</span>
+                    <input type="date" id="end-date" class="form-control">
+                    <button class="btn btn-primary" onclick="updateAnalytics()">Update</button>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="chart-container">
+                    <h3>Daily Email Volume</h3>
+                    <canvas id="daily-volume-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Account Usage Distribution</h3>
+                    <canvas id="account-usage-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>User Activity</h3>
+                    <canvas id="user-activity-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Success Rate</h3>
+                    <canvas id="success-rate-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="page-header">
+                <h1>System Settings</h1>
+                <p>Configure system-wide settings and preferences</p>
+            </div>
+
+            <div class="settings-sections">
+                <!-- Email Limits -->
+                <div class="settings-section">
+                    <h3>Default Email Limits</h3>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label>Personal Account Daily Limit</label>
+                            <input type="number" id="personal-limit" value="400" class="form-control">
+                        </div>
+                        <div class="setting-item">
+                            <label>Workspace Account Daily Limit</label>
+                            <input type="number" id="workspace-limit" value="1600" class="form-control">
+                        </div>
+                        <div class="setting-item">
+                            <label>Enterprise Account Daily Limit</label>
+                            <input type="number" id="enterprise-limit" value="8000" class="form-control">
+                        </div>
+                        <div class="setting-item">
+                            <label>Safety Buffer (%)</label>
+                            <input type="number" id="safety-buffer" value="10" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Controls -->
+                <div class="settings-section">
+                    <h3>System Controls</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-warning" onclick="multiGmailManager.lockSystem('Manual lock by admin')">
+                            <i class="fas fa-lock"></i> Lock System
+                        </button>
+                        <button class="btn btn-success" onclick="multiGmailManager.unlockSystem()">
+                            <i class="fas fa-unlock"></i> Unlock System
+                        </button>
+                        <button class="btn btn-info" onclick="resetAllCounters()">
+                            <i class="fas fa-refresh"></i> Reset Counters
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmDataReset()">
+                            <i class="fas fa-trash"></i> Reset All Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Backup & Export -->
+                <div class="settings-section">
+                    <h3>Data Management</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-primary" onclick="exportSystemData()">
+                            <i class="fas fa-download"></i> Export System Data
+                        </button>
+                        <button class="btn btn-secondary" onclick="showImportModal()">
+                            <i class="fas fa-upload"></i> Import Data
+                        </button>
+                        <button class="btn btn-info" onclick="generateReport()">
+                            <i class="fas fa-file-pdf"></i> Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Add Account Modal -->
+    <div id="add-account-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Gmail Account</h3>
+                <span class="close" onclick="closeModal('add-account-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-account-form">
+                    <div class="form-group">
+                        <label>Account Name</label>
+                        <input type="text" id="account-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Gmail Address</label>
+                        <input type="email" id="account-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Client ID</label>
+                        <input type="text" id="account-client-id" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" id="account-api-key" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Type</label>
+                        <select id="account-type" class="form-control" required>
+                            <option value="personal">Personal Gmail</option>
+                            <option value="workspace">Google Workspace</option>
+                            <option value="enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('add-account-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addAccount()">Add Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add User</h3>
+                <span class="close" onclick="closeModal('add-user-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-user-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="user-username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="user-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="user-role" class="form-control" required>
+                            <option value="user">User</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Daily Email Limit</label>
+                        <input type="number" id="user-daily-limit" class="form-control" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Type</label>
+                        <select id="user-account-type" class="form-control" required>
+                            <option value="personal">Personal</option>
+                            <option value="workspace">Workspace</option>
+                            <option value="enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addUser()">Add User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login to AuraReach</h3>
+            </div>
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="login-username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password (Optional for demo)</label>
+                        <input type="password" id="login-password" class="form-control">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="login()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-overlay" class="tutorial-overlay hidden">
+        <div class="tutorial-content">
+            <div class="tutorial-step" id="tutorial-step-1">
+                <h3>Welcome to AuraReach Admin Panel!</h3>
+                <p>This is your central hub for managing email campaigns, users, and Gmail accounts.</p>
+                <button class="btn btn-primary" onclick="nextTutorialStep()">Next</button>
+            </div>
+            <div class="tutorial-step hidden" id="tutorial-step-2">
+                <h3>Dashboard Overview</h3>
+                <p>Monitor system status, account usage, and recent activity from the dashboard.</p>
+                <button class="btn btn-primary" onclick="nextTutorialStep()">Next</button>
+            </div>
+            <div class="tutorial-step hidden" id="tutorial-step-3">
+                <h3>Gmail Accounts</h3>
+                <p>Add and manage multiple Gmail accounts for increased sending capacity with automatic rotation.</p>
+                <button class="btn btn-primary" onclick="nextTutorialStep()">Next</button>
+            </div>
+            <div class="tutorial-step hidden" id="tutorial-step-4">
+                <h3>User Management</h3>
+                <p>Create users, assign roles, and set individual email limits to control access.</p>
+                <button class="btn btn-primary" onclick="nextTutorialStep()">Next</button>
+            </div>
+            <div class="tutorial-step hidden" id="tutorial-step-5">
+                <h3>Safety Features</h3>
+                <p>The system automatically tracks usage, implements buffers, and locks when limits are reached.</p>
+                <button class="btn btn-primary" onclick="closeTutorial()">Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="gmail-api.js"></script>
+    <script src="multi-gmail-manager.js?v=1734894003"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="tutorial-system.js"></script>
+    <script src="admin-panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraReach - Authentication Admin</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+        
+        .admin-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .admin-card h3 {
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-connected {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        
+        .status-disconnected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .config-display {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .user-role {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .role-admin {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .role-user {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .role-manager {
+            background: rgba(168, 85, 247, 0.1);
+            color: #a855f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Authentication & Database Administration</h1>
+            <p>Manage your Google OAuth settings and Excel database configuration</p>
+            <div class="status-indicator" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span>Checking connection...</span>
+            </div>
+        </div>
+        
+        <div class="admin-grid">
+            <!-- Excel Database Configuration -->
+            <div class="admin-card">
+                <h3>📊 Excel Database Configuration</h3>
+                
+                <div class="form-group">
+                    <label for="spreadsheetId">Spreadsheet ID</label>
+                    <input type="text" id="spreadsheetId" placeholder="Enter your Google Sheets ID">
+                    <small>Get this from your Google Sheets URL after /d/</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="spreadsheetUrl">Spreadsheet URL (Optional)</label>
+                    <input type="url" id="spreadsheetUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="generateDatabase()">🔧 Generate New Database</button>
+                    <button class="btn btn-secondary" onclick="testConnection()">🔍 Test Connection</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Current Configuration</label>
+                    <div class="config-display" id="currentConfig">
+                        Loading configuration...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Google OAuth Configuration -->
+            <div class="admin-card">
+                <h3>🔐 Google OAuth Configuration</h3>
+                
+                <div class="form-group">
+                    <label for="clientId">OAuth Client ID</label>
+                    <input type="text" id="clientId" placeholder="Enter your Google OAuth Client ID">
+                </div>
+                
+                <div class="form-group">
+                    <label for="clientSecret">OAuth Client Secret</label>
+                    <input type="password" id="clientSecret" placeholder="Enter your Google OAuth Client Secret">
+                </div>
+                
+                <div class="form-group">
+                    <label for="redirectUri">Redirect URI</label>
+                    <input type="url" id="redirectUri" placeholder="https://your-domain.com/auth/callback">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="saveOAuthConfig()">💾 Save OAuth Config</button>
+                    <button class="btn btn-secondary" onclick="testOAuth()">🧪 Test OAuth</button>
+                </div>
+            </div>
+            
+            <!-- Apps Script Configuration -->
+            <div class="admin-card">
+                <h3>⚙️ Apps Script Configuration</h3>
+                
+                <div class="form-group">
+                    <label for="scriptUrl">Apps Script Web App URL</label>
+                    <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                
+                <div class="form-group">
+                    <label for="scriptId">Apps Script ID (Optional)</label>
+                    <input type="text" id="scriptId" placeholder="Enter your Apps Script project ID">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="deployScript()">🚀 Deploy Script</button>
+                    <button class="btn btn-secondary" onclick="testScript()">🔍 Test Script</button>
+                </div>
+            </div>
+            
+            <!-- User Management -->
+            <div class="admin-card">
+                <h3>👥 User Management</h3>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="refreshUsers()">🔄 Refresh Users</button>
+                    <button class="btn btn-secondary" onclick="exportUsers()">📤 Export Users</button>
+                </div>
+                
+                <div class="user-list" id="userList">
+                    <div class="user-item">
+                        <div class="user-info">
+                            <div class="user-name">Loading users...</div>
+                            <div class="user-email">Please wait...</div>
+                        </div>
+                        <span class="user-role role-admin">Loading</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Status -->
+            <div class="admin-card">
+                <h3>📈 System Status</h3>
+                
+                <div class="form-group">
+                    <label>Database Status</label>
+                    <div class="status-indicator" id="dbStatus">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>OAuth Status</label>
+                    <div class="status-indicator" id="oauthStatus">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Apps Script Status</label>
+                    <div class="status-indicator" id="scriptStatus">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="runSystemCheck()">🔍 Run System Check</button>
+                    <button class="btn btn-secondary" onclick="viewLogs()">📋 View Logs</button>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="admin-card">
+                <h3>⚡ Quick Actions</h3>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="setupWizard()">🧙‍♂️ Setup Wizard</button>
+                    <p>Run the complete setup wizard for new installations</p>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="backupConfig()">💾 Backup Configuration</button>
+                    <p>Download current configuration as backup</p>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="resetSystem()">🔄 Reset System</button>
+                    <p>Reset all configurations (use with caution)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include authentication scripts -->
+    <script src="auth-config.js"></script>
+    
+    <script>
+        // Admin interface functionality
+        let currentConfig = {};
+        
+        // Initialize admin interface
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentConfig();
+            await checkSystemStatus();
+            await loadUsers();
+        });
+        
+        // Load current configuration
+        async function loadCurrentConfig() {
+            try {
+                // Load from auth-config.js
+                currentConfig = {
+                    spreadsheetId: AUTH_CONFIG.EXCEL_SHEET_ID || '',
+                    clientId: AUTH_CONFIG.GOOGLE_OAUTH_CLIENT_ID || '',
+                    scriptUrl: AUTH_CONFIG.APPS_SCRIPT_URL || '',
+                    redirectUri: window.location.origin + '/auth/callback'
+                };
+                
+                // Update form fields
+                document.getElementById('spreadsheetId').value = currentConfig.spreadsheetId;
+                document.getElementById('clientId').value = currentConfig.clientId;
+                document.getElementById('scriptUrl').value = currentConfig.scriptUrl;
+                document.getElementById('redirectUri').value = currentConfig.redirectUri;
+                
+                // Display current config
+                document.getElementById('currentConfig').textContent = JSON.stringify(currentConfig, null, 2);
+                
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+                document.getElementById('currentConfig').textContent = 'Error loading configuration: ' + error.message;
+            }
+        }
+        
+        // Generate new database
+        async function generateDatabase() {
+            if (!confirm('This will create a new Google Sheets database. Continue?')) return;
+            
+            try {
+                const response = await fetch(AUTH_CONFIG.APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'setupDatabase' })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Database created successfully! Spreadsheet ID: ' + result.spreadsheetId);
+                    document.getElementById('spreadsheetId').value = result.spreadsheetId;
+                    document.getElementById('spreadsheetUrl').value = result.spreadsheetUrl;
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                alert('Error creating database: ' + error.message);
+            }
+        }
+        
+        // Test database connection
+        async function testConnection() {
+            const spreadsheetId = document.getElementById('spreadsheetId').value;
+            if (!spreadsheetId) {
+                alert('Please enter a Spreadsheet ID first');
+                return;
+            }
+            
+            try {
+                const response = await fetch(AUTH_CONFIG.APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'testConnection',
+                        spreadsheetId: spreadsheetId
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    updateStatus('dbStatus', 'connected', 'Database Connected');
+                    alert('Database connection successful!');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                updateStatus('dbStatus', 'disconnected', 'Connection Failed');
+                alert('Database connection failed: ' + error.message);
+            }
+        }
+        
+        // Save OAuth configuration
+        async function saveOAuthConfig() {
+            const clientId = document.getElementById('clientId').value;
+            const clientSecret = document.getElementById('clientSecret').value;
+            const redirectUri = document.getElementById('redirectUri').value;
+            
+            if (!clientId || !clientSecret) {
+                alert('Please enter both Client ID and Client Secret');
+                return;
+            }
+            
+            try {
+                // Update AUTH_CONFIG (this would need to be saved to a config file in a real implementation)
+                AUTH_CONFIG.GOOGLE_OAUTH_CLIENT_ID = clientId;
+                AUTH_CONFIG.OAUTH_REDIRECT_URI = redirectUri;
+                
+                alert('OAuth configuration saved! Please update your auth-config.js file with these values.');
+                await loadCurrentConfig();
+            } catch (error) {
+                alert('Error saving OAuth configuration: ' + error.message);
+            }
+        }
+        
+        // Test OAuth
+        async function testOAuth() {
+            try {
+                // Initialize Google OAuth
+                await gapi.load('auth2', () => {
+                    gapi.auth2.init({
+                        client_id: document.getElementById('clientId').value
+                    }).then(() => {
+                        updateStatus('oauthStatus', 'connected', 'OAuth Ready');
+                        alert('OAuth configuration is valid!');
+                    });
+                });
+            } catch (error) {
+                updateStatus('oauthStatus', 'disconnected', 'OAuth Failed');
+                alert('OAuth test failed: ' + error.message);
+            }
+        }
+        
+        // Check system status
+        async function checkSystemStatus() {
+            // Check database status
+            if (currentConfig.spreadsheetId) {
+                updateStatus('dbStatus', 'connected', 'Configured');
+            } else {
+                updateStatus('dbStatus', 'disconnected', 'Not Configured');
+            }
+            
+            // Check OAuth status
+            if (currentConfig.clientId) {
+                updateStatus('oauthStatus', 'connected', 'Configured');
+            } else {
+                updateStatus('oauthStatus', 'disconnected', 'Not Configured');
+            }
+            
+            // Check Apps Script status
+            if (currentConfig.scriptUrl) {
+                updateStatus('scriptStatus', 'connected', 'Configured');
+            } else {
+                updateStatus('scriptStatus', 'disconnected', 'Not Configured');
+            }
+        }
+        
+        // Update status indicator
+        function updateStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status-indicator status-${status}`;
+            element.querySelector('span:last-child').textContent = message;
+        }
+        
+        // Load users
+        async function loadUsers() {
+            try {
+                if (!currentConfig.scriptUrl) {
+                    document.getElementById('userList').innerHTML = '<div class="user-item"><div class="user-info"><div class="user-name">No Apps Script URL configured</div></div></div>';
+                    return;
+                }
+                
+                const response = await fetch(currentConfig.scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'getUsers' })
+                });
+                
+                const result = await response.json();
+                if (result.success && result.users) {
+                    displayUsers(result.users);
+                } else {
+                    throw new Error(result.error || 'Failed to load users');
+                }
+            } catch (error) {
+                document.getElementById('userList').innerHTML = `<div class="user-item"><div class="user-info"><div class="user-name">Error loading users</div><div class="user-email">${error.message}</div></div></div>`;
+            }
+        }
+        
+        // Display users
+        function displayUsers(users) {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-name">${user.name || user.email.split('@')[0]}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                    <span class="user-role role-${user.role}">${user.role}</span>
+                `;
+                userList.appendChild(userItem);
+            });
+        }
+        
+        // Setup wizard
+        function setupWizard() {
+            alert('Setup Wizard will guide you through the complete configuration process. This feature will be implemented in the next update.');
+        }
+        
+        // Backup configuration
+        function backupConfig() {
+            const config = {
+                timestamp: new Date().toISOString(),
+                ...currentConfig
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `aurareach-config-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Reset system
+        function resetSystem() {
+            if (!confirm('This will reset all configurations. Are you sure?')) return;
+            if (!confirm('This action cannot be undone. Continue?')) return;
+            
+            // Clear all form fields
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            
+            // Reset status indicators
+            updateStatus('dbStatus', 'disconnected', 'Not Configured');
+            updateStatus('oauthStatus', 'disconnected', 'Not Configured');
+            updateStatus('scriptStatus', 'disconnected', 'Not Configured');
+            
+            alert('System configuration has been reset. Please reconfigure all settings.');
+        }
+        
+        // Refresh users
+        function refreshUsers() {
+            loadUsers();
+        }
+        
+        // Export users
+        function exportUsers() {
+            alert('User export functionality will be implemented in the next update.');
+        }
+        
+        // Deploy script
+        function deployScript() {
+            alert('Apps Script deployment functionality will be implemented in the next update.');
+        }
+        
+        // Test script
+        function testScript() {
+            const scriptUrl = document.getElementById('scriptUrl').value;
+            if (!scriptUrl) {
+                alert('Please enter an Apps Script URL first');
+                return;
+            }
+            
+            fetch(scriptUrl + '?test=true')
+                .then(response => response.text())
+                .then(result => {
+                    updateStatus('scriptStatus', 'connected', 'Script Accessible');
+                    alert('Apps Script is accessible!');
+                })
+                .catch(error => {
+                    updateStatus('scriptStatus', 'disconnected', 'Script Error');
+                    alert('Apps Script test failed: ' + error.message);
+                });
+        }
+        
+        // Run system check
+        function runSystemCheck() {
+            checkSystemStatus();
+            alert('System check completed. Check the status indicators for results.');
+        }
+        
+        // View logs
+        function viewLogs() {
+            alert('Log viewing functionality will be implemented in the next update.');
+        }
+    </script>
+</body>
+</html>

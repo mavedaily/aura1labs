@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraReach Email Sender - Professional Email Management</title>
+    <link rel="stylesheet" href="gmail-sender.css">
+    <link rel="stylesheet" href="email-composer.css">
+    <link rel="stylesheet" href="contact-manager.css">
+    <link rel="stylesheet" href="gmail-api.css">
+    <link rel="stylesheet" href="tutorial.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-paper-plane"></i>
+                <span>AuraReach</span>
+            </div>
+            <nav class="nav">
+                <button class="nav-link help-btn" data-tutorial="emailSender">
+                    <i class="fas fa-question-circle"></i>
+                    Tutorial
+                </button>
+                <a href="admin-panel.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Admin Panel
+                </a>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span id="current-user">Guest</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Active Accounts</div>
+                <div class="status-value" id="active-accounts">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Today's Usage</div>
+                <div class="status-value" id="daily-usage">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Remaining Limit</div>
+                <div class="status-value" id="remaining-limit">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">System Status</div>
+                <div class="status-value status-active" id="system-status">Active</div>
+            </div>
+        </div>
+
+        <!-- Email Composer -->
+        <div class="email-composer">
+            <div class="composer-header">
+                <h2>
+                    <i class="fas fa-envelope"></i>
+                    Compose Email
+                </h2>
+                <div class="composer-actions">
+                    <button type="button" class="btn btn-secondary" onclick="loadTemplate()">
+                        <i class="fas fa-file-alt"></i>
+                        Load Template
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="saveTemplate()">
+                        <i class="fas fa-save"></i>
+                        Save Template
+                    </button>
+                </div>
+            </div>
+
+            <form id="email-form" class="email-form">
+                <!-- Recipient Section -->
+                <div class="form-section">
+                    <label class="form-label">
+                        <i class="fas fa-users"></i>
+                        Recipients
+                    </label>
+                    <div class="recipient-input-container">
+                        <textarea 
+                            id="recipients" 
+                            class="form-control recipient-textarea" 
+                            placeholder="Enter email addresses separated by commas or new lines..."
+                            rows="4"
+                        ></textarea>
+                        <div class="recipient-actions">
+                            <button type="button" class="btn btn-outline" onclick="importRecipients()">
+                                <i class="fas fa-upload"></i>
+                                Import CSV
+                            </button>
+                            <button type="button" class="btn btn-outline" onclick="validateEmails()">
+                                <i class="fas fa-check-circle"></i>
+                                Validate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="recipient-count">
+                        <span id="recipient-count">0</span> recipients
+                    </div>
+                </div>
+
+                <!-- Subject Section -->
+                <div class="form-section">
+                    <label for="subject" class="form-label">
+                        <i class="fas fa-tag"></i>
+                        Subject
+                    </label>
+                    <input 
+                        type="text" 
+                        id="subject" 
+                        class="form-control" 
+                        placeholder="Enter email subject..."
+                        required
+                    >
+                </div>
+
+                <!-- Message Section -->
+                <div class="form-section">
+                    <label for="message" class="form-label">
+                        <i class="fas fa-edit"></i>
+                        Message
+                    </label>
+                    <div class="message-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" onclick="formatText('bold')">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('italic')">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('underline')">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <div class="toolbar-divider"></div>
+                            <button type="button" class="toolbar-btn" onclick="insertLink()">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="insertImage()">
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <div class="toolbar-divider"></div>
+                            <button type="button" class="toolbar-btn" onclick="previewEmail()">
+                                <i class="fas fa-eye"></i>
+                                Preview
+                            </button>
+                        </div>
+                        <textarea 
+                            id="message" 
+                            class="form-control message-textarea" 
+                            placeholder="Enter your email message..."
+                            rows="12"
+                            required
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="form-section">
+                    <div class="section-header" onclick="toggleAdvancedOptions()">
+                        <span class="form-label">
+                            <i class="fas fa-cogs"></i>
+                            Advanced Options
+                        </span>
+                        <i class="fas fa-chevron-down toggle-icon" id="advanced-toggle"></i>
+                    </div>
+                    <div class="advanced-options" id="advanced-options">
+                        <div class="option-row">
+                            <div class="option-group">
+                                <label for="delay" class="option-label">Delay Between Emails (seconds)</label>
+                                <input type="number" id="delay" class="form-control" value="30" min="10" max="300">
+                            </div>
+                            <div class="option-group">
+                                <label for="priority" class="option-label">Priority</label>
+                                <select id="priority" class="form-control">
+                                    <option value="normal">Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="option-row">
+                            <div class="option-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="track-opens" checked>
+                                    <span class="checkmark"></span>
+                                    Track Email Opens
+                                </label>
+                            </div>
+                            <div class="option-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="track-clicks" checked>
+                                    <span class="checkmark"></span>
+                                    Track Link Clicks
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Send Actions -->
+                <div class="send-actions">
+                    <div class="send-info">
+                        <div class="send-estimate">
+                            <i class="fas fa-clock"></i>
+                            Estimated time: <span id="estimated-time">0 minutes</span>
+                        </div>
+                        <div class="account-rotation">
+                            <i class="fas fa-sync-alt"></i>
+                            Using <span id="active-account-count">0</span> accounts
+                        </div>
+                    </div>
+                    <div class="send-buttons">
+                        <button type="button" class="btn btn-outline" onclick="sendTestEmail()">
+                            <i class="fas fa-vial"></i>
+                            Send Test
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="scheduleEmail()">
+                            <i class="fas fa-calendar"></i>
+                            Schedule
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Emails
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section" id="progress-section" style="display: none;">
+            <div class="progress-header">
+                <h3>
+                    <i class="fas fa-chart-line"></i>
+                    Sending Progress
+                </h3>
+                <button type="button" class="btn btn-danger btn-sm" onclick="stopSending()">
+                    <i class="fas fa-stop"></i>
+                    Stop
+                </button>
+            </div>
+            <div class="progress-stats">
+                <div class="stat">
+                    <div class="stat-value" id="sent-count">0</div>
+                    <div class="stat-label">Sent</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="failed-count">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="remaining-count">0</div>
+                    <div class="stat-label">Remaining</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="success-rate">0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0%</div>
+            </div>
+            <div class="current-action" id="current-action">
+                Preparing to send...
+            </div>
+        </div>
+
+        <!-- Safety Alerts -->
+        <div class="safety-alerts" id="safety-alerts">
+            <!-- Dynamic safety alerts will be inserted here -->
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Email Preview Modal -->
+    <div id="preview-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Email Preview</h3>
+                <span class="close" onclick="closeModal('preview-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="preview-container" id="preview-container">
+                    <!-- Email preview will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('preview-modal')">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendFromPreview()">Send Emails</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="template-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Email Templates</h3>
+                <span class="close" onclick="closeModal('template-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="template-list" id="template-list">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('template-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div id="schedule-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Schedule Email</h3>
+                <span class="close" onclick="closeModal('schedule-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="schedule-date">Date</label>
+                    <input type="date" id="schedule-date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="schedule-time">Time</label>
+                    <input type="time" id="schedule-time" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="schedule-timezone">Timezone</label>
+                    <select id="schedule-timezone" class="form-control">
+                        <option value="UTC">UTC</option>
+                        <option value="America/New_York">Eastern Time</option>
+                        <option value="America/Chicago">Central Time</option>
+                        <option value="America/Denver">Mountain Time</option>
+                        <option value="America/Los_Angeles">Pacific Time</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('schedule-modal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSchedule()">Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buffer Warning Modal -->
+    <div id="buffer-warning-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    Safety Buffer Reached
+                </h3>
+                <span class="close" onclick="closeModal('buffer-warning-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="warning-message">
+                    <p>You've reached the safety buffer limit for today. Continuing to send emails may risk account suspension.</p>
+                    <div class="buffer-stats">
+                        <div class="buffer-stat">
+                            <strong>Current Usage:</strong> <span id="buffer-current-usage">0</span>
+                        </div>
+                        <div class="buffer-stat">
+                            <strong>Safe Limit:</strong> <span id="buffer-safe-limit">0</span>
+                        </div>
+                        <div class="buffer-stat">
+                            <strong>Hard Limit:</strong> <span id="buffer-hard-limit">0</span>
+                        </div>
+                    </div>
+                    <p class="buffer-recommendation">
+                        <strong>Recommendation:</strong> Wait until tomorrow or add more Gmail accounts to increase capacity.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('buffer-warning-modal')">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="proceedWithBuffer()">Proceed Anyway</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Input for CSV Import -->
+    <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCSVImport(event)">
+
+    <!-- Scripts -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="multi-gmail-manager.js?v=1734894003"></script>
+    <script src="tutorial-system.js"></script>
+    <script src="gmail-sender.js"></script>
+</body>
+</html>
