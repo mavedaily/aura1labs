@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data:; frame-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://accounts.google.com; frame-src 'self' https://accounts.google.com; connect-src 'self' https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
     <title>AuraReach - Professional Email Management Platform</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="tutorial.css">
@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Identity Services for Chrome profile detection -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </head>
 <body>
@@ -366,16 +369,9 @@
             // Show loading state
             showAuthLoading();
             
-            // Wait for auth manager to initialize
+            // Wait for auth manager to initialize and try auto-authentication
             setTimeout(async () => {
-                // Check if user is already authenticated
-                if (authManager.isAuthenticated) {
-                    showDashboard();
-                } else {
-                    showLoginScreen();
-                }
-                
-                // Listen for authentication state changes
+                // Listen for authentication state changes first
                 authManager.addAuthListener((event, data) => {
                     if (event === 'signin') {
                         showDashboard();
@@ -386,7 +382,17 @@
                         updateUserLimits(data);
                     }
                 });
-            }, 1000);
+                
+                // Give auto-authentication a bit more time to complete
+                setTimeout(() => {
+                    // Check if user is already authenticated (including auto-auth)
+                    if (authManager.isAuthenticated) {
+                        showDashboard();
+                    } else {
+                        showLoginScreen();
+                    }
+                }, 2000);
+            }, 500);
         });
         
         // Show loading state
