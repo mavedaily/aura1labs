@@ -648,75 +648,79 @@ class AdminPanel {
 
 // Global functions for HTML onclick events
 function showAddAccountModal() {
-    adminPanel.showAddAccountModal();
+    if (window.adminPanel) window.adminPanel.showAddAccountModal();
 }
 
 function showAddUserModal() {
-    adminPanel.showAddUserModal();
+    if (window.adminPanel) window.adminPanel.showAddUserModal();
 }
 
 function showLoginModal() {
-    adminPanel.showLoginModal();
+    if (window.adminPanel) window.adminPanel.showLoginModal();
 }
 
 function addAccount() {
-    adminPanel.addAccount();
+    if (window.adminPanel) window.adminPanel.addAccount();
 }
 
 function addUser() {
-    adminPanel.addUser();
+    if (window.adminPanel) window.adminPanel.addUser();
 }
 
 function editUser(userId) {
-    adminPanel.editUser(userId);
+    if (window.adminPanel) window.adminPanel.editUser(userId);
 }
 
 function login() {
-    adminPanel.login();
+    if (window.adminPanel) window.adminPanel.login();
 }
 
 function closeModal(modalId) {
-    adminPanel.closeModal(modalId);
+    if (window.adminPanel) window.adminPanel.closeModal(modalId);
 }
 
 function nextTutorialStep() {
-    adminPanel.nextTutorialStep();
+    if (window.adminPanel) window.adminPanel.nextTutorialStep();
 }
 
 function closeTutorial() {
-    adminPanel.closeTutorial();
+    if (window.adminPanel) window.adminPanel.closeTutorial();
+}
+
+function startTutorial() {
+    if (window.adminPanel) window.adminPanel.showTutorial();
 }
 
 function updateAnalytics() {
-    adminPanel.updateAnalytics();
+    if (window.adminPanel) window.adminPanel.updateAnalytics();
 }
 
 function exportSystemData() {
-    adminPanel.exportSystemData();
+    if (window.adminPanel) window.adminPanel.exportSystemData();
 }
 
 function resetAllCounters() {
-    adminPanel.resetAllCounters();
+    if (window.adminPanel) window.adminPanel.resetAllCounters();
 }
 
 function confirmDataReset() {
-    adminPanel.confirmDataReset();
+    if (window.adminPanel) window.adminPanel.confirmDataReset();
 }
 
 function openEmailSender() {
-    adminPanel.openEmailSender();
+    if (window.adminPanel) window.adminPanel.openEmailSender();
 }
 
 function generateReport() {
-    adminPanel.generateReport();
+    if (window.adminPanel) window.adminPanel.generateReport();
 }
 
 function exportAnalytics() {
-    adminPanel.exportSystemData();
+    if (window.adminPanel) window.adminPanel.exportSystemData();
 }
 
 function showImportModal() {
-    adminPanel.showNotification('Import functionality coming soon!', 'info');
+    if (window.adminPanel) window.adminPanel.showNotification('Import functionality coming soon!', 'info');
 }
 
 // Initialize admin panel when DOM is loaded

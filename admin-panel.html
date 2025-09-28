@@ -3,166 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://apis.google.com https://*.gstatic.com https://accounts.google.com https://ssl.gstatic.com https://www.google.com https://*.googleapis.com; frame-src 'self' https://accounts.google.com https://www.google.com https://*.google.com; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://script.google.com https://docs.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
-    <title>AuraReach Admin Panel</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://apis.google.com https://*.gstatic.com https://accounts.google.com https://ssl.gstatic.com https://www.google.com https://*.googleapis.com https://cdn.jsdelivr.net; frame-src 'self' https://accounts.google.com https://www.google.com https://*.google.com; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://script.google.com https://docs.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
+    <title>AuraReach - Admin Panel</title>
+    <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="admin-panel.css">
     <link rel="stylesheet" href="tutorial.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <!-- Header -->
-    <header class="admin-header">
+    <header class="header">
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-envelope-open-text"></i>
-                <span>AuraReach Admin</span>
+                <span>AuraReach</span>
             </div>
-            <nav class="header-nav">
-                <button class="nav-link help-btn" data-tutorial="adminPanel">
+            <nav class="nav">
+                <button class="btn btn-outline btn-sm" onclick="startTutorial()">
                     <i class="fas fa-question-circle"></i>
                     Tutorial
                 </button>
-                <a href="gmail-sender.html" class="nav-link">
-                    <i class="fas fa-envelope"></i>
+                <a href="gmail-sender.html" class="btn btn-outline btn-sm">
+                    <i class="fas fa-paper-plane"></i>
                     Email Sender
                 </a>
-                <button class="nav-link" onclick="adminPanel.logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </button>
+                <div class="user-menu">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">AuraReach Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <button class="dropdown-item" onclick="adminPanel.logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
             </nav>
-            <div id="current-user-info" class="user-info-header"></div>
         </div>
     </header>
 
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar">
-        <ul class="nav-menu">
-            <li class="nav-item active" data-tab="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-item active" onclick="showTab('dashboard')">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
-            </li>
-            <li class="nav-item" data-tab="accounts">
+            </a>
+            <a href="#accounts" class="nav-item" onclick="showTab('accounts')">
                 <i class="fas fa-envelope"></i>
                 <span>Gmail Accounts</span>
-            </li>
-            <li class="nav-item" data-tab="users">
+            </a>
+            <a href="#users" class="nav-item" onclick="showTab('users')">
                 <i class="fas fa-users"></i>
                 <span>User Management</span>
-            </li>
-            <li class="nav-item" data-tab="analytics">
+            </a>
+            <a href="#analytics" class="nav-item" onclick="showTab('analytics')">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
-            </li>
-            <li class="nav-item" data-tab="settings">
+            </a>
+            <a href="#settings" class="nav-item" onclick="showTab('settings')">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
-            </li>
-        </ul>
-    </nav>
+            </a>
+        </nav>
+    </aside>
 
     <!-- Main Content -->
     <main class="main-content">
         <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active">
             <div class="page-header">
-                <h1>System Dashboard</h1>
-                <p>Overview of your email management system</p>
-            </div>
-
-            <!-- System Status -->
-            <div class="status-section">
-                <h2>System Status</h2>
-                <div id="system-status" class="status-container"></div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <h2>Quick Actions</h2>
-                <div class="action-grid">
-                    <button class="action-card" onclick="showAddAccountModal()">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Add Gmail Account</span>
-                    </button>
-                    <button class="action-card" onclick="showAddUserModal()">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Add User</span>
-                    </button>
-                    <button class="action-card" onclick="openEmailSender()">
-                        <i class="fas fa-paper-plane"></i>
-                        <span>Send Emails</span>
-                    </button>
-                    <button class="action-card" onclick="exportAnalytics()">
-                        <i class="fas fa-download"></i>
-                        <span>Export Data</span>
+                <div class="page-title">
+                    <h1>System Dashboard</h1>
+                    <p>Monitor your email system performance and status</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
                     </button>
                 </div>
             </div>
 
+            <!-- System Status -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>System Status</h2>
+                    <div class="status-indicator">
+                        <span class="status-dot status-success"></span>
+                        <span>All Systems Operational</span>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="system-status">Operational</div>
+                            <div class="stat-label">System Status</div>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check-circle"></i>
+                            <span>100% Uptime</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="active-accounts">0</div>
+                            <div class="stat-label">Active Accounts</div>
+                        </div>
+                        <div class="stat-change">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Ready to use</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-users">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-change">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add users</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="emails-today">0</div>
+                            <div class="stat-label">Emails Today</div>
+                        </div>
+                        <div class="stat-change">
+                            <i class="fas fa-clock"></i>
+                            <span>Last 24h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Quick Actions</h2>
+                    <p>Manage your system with these common tasks</p>
+                </div>
+                <div class="actions-grid">
+                    <div class="action-card" onclick="showAddAccountModal()">
+                        <div class="action-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Add Gmail Account</h3>
+                            <p>Connect a new Gmail account for sending</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="showAddUserModal()">
+                        <div class="action-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Add User</h3>
+                            <p>Create a new user account with permissions</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="window.location.href='gmail-sender.html'">
+                        <div class="action-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Send Emails</h3>
+                            <p>Compose and send email campaigns</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="exportSystemData()">
+                        <div class="action-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Export Data</h3>
+                            <p>Download system reports and analytics</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Recent Activity -->
-            <div class="recent-activity">
-                <h2>Recent Activity</h2>
-                <div id="activity-feed" class="activity-container"></div>
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Recent Activity</h2>
+                    <button class="btn btn-outline btn-sm" onclick="refreshActivity()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div id="activity-feed" class="activity-container">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">System initialized</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Gmail Accounts Tab -->
         <div id="accounts" class="tab-content">
             <div class="page-header">
-                <h1>Gmail Accounts</h1>
-                <button class="btn btn-primary" onclick="showAddAccountModal()">
-                    <i class="fas fa-plus"></i> Add Account
-                </button>
+                <div class="page-title">
+                    <h1>Gmail Accounts</h1>
+                    <p>Manage your connected Gmail accounts for email sending</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="showAddAccountModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Account
+                    </button>
+                </div>
             </div>
 
-            <div class="accounts-section">
-                <div id="accounts-list" class="accounts-grid"></div>
+            <div class="dashboard-section">
+                <div id="accounts-list" class="accounts-grid">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>No Gmail accounts connected</h3>
+                        <p>Add your first Gmail account to start sending emails</p>
+                        <button class="btn btn-primary" onclick="showAddAccountModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Gmail Account
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- User Management Tab -->
         <div id="users" class="tab-content">
             <div class="page-header">
-                <h1>User Management</h1>
-                <button class="btn btn-primary" onclick="showAddUserModal()">
-                    <i class="fas fa-user-plus"></i> Add User
-                </button>
+                <div class="page-title">
+                    <h1>User Management</h1>
+                    <p>Create and manage user accounts with role-based permissions</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <i class="fas fa-user-plus"></i>
+                        Add User
+                    </button>
+                </div>
             </div>
 
-            <div class="users-section">
-                <div id="users-list" class="users-grid"></div>
+            <div class="dashboard-section">
+                <div id="users-list" class="users-grid">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>No users created</h3>
+                        <p>Create user accounts to manage access and permissions</p>
+                        <button class="btn btn-primary" onclick="showAddUserModal()">
+                            <i class="fas fa-user-plus"></i>
+                            Add User
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Analytics Tab -->
         <div id="analytics" class="tab-content">
             <div class="page-header">
-                <h1>Analytics & Reports</h1>
-                <div class="date-range-picker">
-                    <input type="date" id="start-date" class="form-control">
-                    <span>to</span>
-                    <input type="date" id="end-date" class="form-control">
-                    <button class="btn btn-primary" onclick="updateAnalytics()">Update</button>
+                <div class="page-title">
+                    <h1>Analytics & Reports</h1>
+                    <p>Monitor email performance and system usage</p>
+                </div>
+                <div class="page-actions">
+                    <div class="date-range-picker">
+                        <input type="date" id="start-date" class="form-control">
+                        <span>to</span>
+                        <input type="date" id="end-date" class="form-control">
+                        <button class="btn btn-primary" onclick="updateAnalytics()">
+                            <i class="fas fa-sync-alt"></i>
+                            Update
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="analytics-grid">
-                <div class="chart-container">
-                    <h3>Daily Email Volume</h3>
-                    <canvas id="daily-volume-chart"></canvas>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Daily Email Volume</h3>
+                        <div class="chart-actions">
+                            <button class="btn btn-outline btn-sm" onclick="exportChart('daily-volume')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="daily-volume-chart" width="400" height="200"></canvas>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <h3>Account Usage Distribution</h3>
-                    <canvas id="account-usage-chart"></canvas>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Account Usage Distribution</h3>
+                        <div class="chart-actions">
+                            <button class="btn btn-outline btn-sm" onclick="exportChart('account-usage')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="account-usage-chart" width="400" height="200"></canvas>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <h3>User Activity</h3>
-                    <canvas id="user-activity-chart"></canvas>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>User Activity</h3>
+                        <div class="chart-actions">
+                            <button class="btn btn-outline btn-sm" onclick="exportChart('user-activity')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="user-activity-chart" width="400" height="200"></canvas>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <h3>Success Rate</h3>
-                    <canvas id="success-rate-chart"></canvas>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Success Rate</h3>
+                        <div class="chart-actions">
+                            <button class="btn btn-outline btn-sm" onclick="exportChart('success-rate')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="success-rate-chart" width="400" height="200"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -170,65 +382,93 @@
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
             <div class="page-header">
-                <h1>System Settings</h1>
-                <p>Configure system-wide settings and preferences</p>
+                <div class="page-title">
+                    <h1>System Settings</h1>
+                    <p>Configure system-wide settings and preferences</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline" onclick="saveSettings()">
+                        <i class="fas fa-save"></i>
+                        Save Settings
+                    </button>
+                </div>
             </div>
 
             <div class="settings-sections">
                 <!-- Email Limits -->
-                <div class="settings-section">
-                    <h3>Default Email Limits</h3>
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h3>Default Email Limits</h3>
+                        <p>Set daily sending limits for different account types</p>
+                    </div>
                     <div class="settings-grid">
-                        <div class="setting-item">
-                            <label>Personal Account Daily Limit</label>
+                        <div class="form-group">
+                            <label for="personal-limit">Personal Account Daily Limit</label>
                             <input type="number" id="personal-limit" value="400" class="form-control">
+                            <small class="form-text">Recommended: 400 emails per day</small>
                         </div>
-                        <div class="setting-item">
-                            <label>Workspace Account Daily Limit</label>
+                        <div class="form-group">
+                            <label for="workspace-limit">Workspace Account Daily Limit</label>
                             <input type="number" id="workspace-limit" value="1600" class="form-control">
+                            <small class="form-text">Recommended: 1600 emails per day</small>
                         </div>
-                        <div class="setting-item">
-                            <label>Enterprise Account Daily Limit</label>
+                        <div class="form-group">
+                            <label for="enterprise-limit">Enterprise Account Daily Limit</label>
                             <input type="number" id="enterprise-limit" value="8000" class="form-control">
+                            <small class="form-text">Recommended: 8000 emails per day</small>
                         </div>
-                        <div class="setting-item">
-                            <label>Safety Buffer (%)</label>
+                        <div class="form-group">
+                            <label for="safety-buffer">Safety Buffer (%)</label>
                             <input type="number" id="safety-buffer" value="10" class="form-control">
+                            <small class="form-text">Buffer to prevent hitting limits</small>
                         </div>
                     </div>
                 </div>
 
                 <!-- System Controls -->
-                <div class="settings-section">
-                    <h3>System Controls</h3>
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h3>System Controls</h3>
+                        <p>Manage system operations and maintenance</p>
+                    </div>
                     <div class="control-buttons">
                         <button class="btn btn-warning" onclick="multiGmailManager.lockSystem('Manual lock by admin')">
-                            <i class="fas fa-lock"></i> Lock System
+                            <i class="fas fa-lock"></i>
+                            Lock System
                         </button>
                         <button class="btn btn-success" onclick="multiGmailManager.unlockSystem()">
-                            <i class="fas fa-unlock"></i> Unlock System
+                            <i class="fas fa-unlock"></i>
+                            Unlock System
                         </button>
-                        <button class="btn btn-info" onclick="resetAllCounters()">
-                            <i class="fas fa-refresh"></i> Reset Counters
+                        <button class="btn btn-outline" onclick="resetAllCounters()">
+                            <i class="fas fa-refresh"></i>
+                            Reset Counters
                         </button>
                         <button class="btn btn-danger" onclick="confirmDataReset()">
-                            <i class="fas fa-trash"></i> Reset All Data
+                            <i class="fas fa-trash"></i>
+                            Reset All Data
                         </button>
                     </div>
                 </div>
 
                 <!-- Backup & Export -->
-                <div class="settings-section">
-                    <h3>Data Management</h3>
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h3>Data Management</h3>
+                        <p>Export, import, and manage system data</p>
+                    </div>
                     <div class="control-buttons">
                         <button class="btn btn-primary" onclick="exportSystemData()">
-                            <i class="fas fa-download"></i> Export System Data
+                            <i class="fas fa-download"></i>
+                            Export System Data
                         </button>
-                        <button class="btn btn-secondary" onclick="showImportModal()">
-                            <i class="fas fa-upload"></i> Import Data
+                        <button class="btn btn-outline" onclick="showImportModal()">
+                            <i class="fas fa-upload"></i>
+                            Import Data
                         </button>
-                        <button class="btn btn-info" onclick="generateReport()">
-                            <i class="fas fa-file-pdf"></i> Generate Report
+                        <button class="btn btn-outline" onclick="generateReport()">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate Report
                         </button>
                     </div>
                 </div>
@@ -247,34 +487,43 @@
             <div class="modal-body">
                 <form id="add-account-form">
                     <div class="form-group">
-                        <label>Account Name</label>
-                        <input type="text" id="account-name" class="form-control" required>
+                        <label for="account-name">Account Name</label>
+                        <input type="text" id="account-name" class="form-control" placeholder="Enter a friendly name for this account" required>
+                        <small class="form-text">This name will help you identify the account</small>
                     </div>
                     <div class="form-group">
-                        <label>Gmail Address</label>
-                        <input type="email" id="account-email" class="form-control" required>
+                        <label for="account-email">Gmail Address</label>
+                        <input type="email" id="account-email" class="form-control" placeholder="example@gmail.com" required>
+                        <small class="form-text">The Gmail address you want to send emails from</small>
                     </div>
                     <div class="form-group">
-                        <label>Client ID</label>
-                        <input type="text" id="account-client-id" class="form-control" required>
+                        <label for="account-client-id">Client ID</label>
+                        <input type="text" id="account-client-id" class="form-control" placeholder="Your Google API Client ID" required>
+                        <small class="form-text">Get this from Google Cloud Console</small>
                     </div>
                     <div class="form-group">
-                        <label>API Key</label>
-                        <input type="text" id="account-api-key" class="form-control" required>
+                        <label for="account-api-key">API Key</label>
+                        <input type="text" id="account-api-key" class="form-control" placeholder="Your Google API Key" required>
+                        <small class="form-text">Your Gmail API key from Google Cloud Console</small>
                     </div>
                     <div class="form-group">
-                        <label>Account Type</label>
+                        <label for="account-type">Account Type</label>
                         <select id="account-type" class="form-control" required>
-                            <option value="personal">Personal Gmail</option>
-                            <option value="workspace">Google Workspace</option>
-                            <option value="enterprise">Enterprise</option>
+                            <option value="">Select account type</option>
+                            <option value="personal">Personal Gmail (400 emails/day)</option>
+                            <option value="workspace">Google Workspace (1600 emails/day)</option>
+                            <option value="enterprise">Enterprise (8000 emails/day)</option>
                         </select>
+                        <small class="form-text">Choose based on your Gmail account type</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('add-account-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addAccount()">Add Account</button>
+                <button class="btn btn-outline" onclick="closeModal('add-account-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addAccount()">
+                    <i class="fas fa-plus"></i>
+                    Add Account
+                </button>
             </div>
         </div>
     </div>
@@ -289,38 +538,48 @@
             <div class="modal-body">
                 <form id="add-user-form">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="user-username" class="form-control" required>
+                        <label for="user-username">Username</label>
+                        <input type="text" id="user-username" class="form-control" placeholder="Enter username" required>
+                        <small class="form-text">Unique username for login</small>
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="user-email" class="form-control" required>
+                        <label for="user-email">Email</label>
+                        <input type="email" id="user-email" class="form-control" placeholder="user@example.com" required>
+                        <small class="form-text">User's email address</small>
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
+                        <label for="user-role">Role</label>
                         <select id="user-role" class="form-control" required>
-                            <option value="user">User</option>
-                            <option value="manager">Manager</option>
-                            <option value="admin">Admin</option>
+                            <option value="">Select role</option>
+                            <option value="user">User - Basic email sending</option>
+                            <option value="manager">Manager - User management</option>
+                            <option value="admin">Admin - Full system access</option>
                         </select>
+                        <small class="form-text">Determines user permissions</small>
                     </div>
                     <div class="form-group">
-                        <label>Daily Email Limit</label>
-                        <input type="number" id="user-daily-limit" class="form-control" value="100" required>
+                        <label for="user-daily-limit">Daily Email Limit</label>
+                        <input type="number" id="user-daily-limit" class="form-control" value="100" min="1" max="10000" required>
+                        <small class="form-text">Maximum emails this user can send per day</small>
                     </div>
                     <div class="form-group">
-                        <label>Account Type</label>
+                        <label for="user-account-type">Account Type</label>
                         <select id="user-account-type" class="form-control" required>
+                            <option value="">Select account type</option>
                             <option value="personal">Personal</option>
                             <option value="workspace">Workspace</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
+                        <small class="form-text">Type of Gmail accounts this user can access</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addUser()">Add User</button>
+                <button class="btn btn-outline" onclick="closeModal('add-user-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addUser()">
+                    <i class="fas fa-user-plus"></i>
+                    Add User
+                </button>
             </div>
         </div>
     </div>
@@ -334,17 +593,21 @@
             <div class="modal-body">
                 <form id="login-form">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="login-username" class="form-control" required>
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" class="form-control" placeholder="Enter your username" required>
                     </div>
                     <div class="form-group">
-                        <label>Password (Optional for demo)</label>
-                        <input type="password" id="login-password" class="form-control">
+                        <label for="login-password">Password (Optional for demo)</label>
+                        <input type="password" id="login-password" class="form-control" placeholder="Enter your password">
+                        <small class="form-text">Password is optional in demo mode</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="login()">Login</button>
+                <button class="btn btn-primary" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </button>
             </div>
         </div>
     </div>
@@ -386,5 +649,356 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="tutorial-system.js"></script>
     <script src="admin-panel.js"></script>
+
+    <script>
+        // Professional UI Enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize professional features
+            initializeProfessionalUI();
+            
+            // Wait for Chart.js to load before initializing charts
+            if (typeof Chart !== 'undefined') {
+                initializeCharts();
+            } else {
+                // Wait a bit for Chart.js to load
+                setTimeout(() => {
+                    if (typeof Chart !== 'undefined') {
+                        initializeCharts();
+                    } else {
+                        console.warn('Chart.js not loaded, charts will not be available');
+                    }
+                }, 500);
+            }
+            
+            initializeRealTimeUpdates();
+            
+            // Add ripple effect to buttons
+            addRippleEffect();
+            
+            // Initialize tooltips
+            initializeTooltips();
+        });
+
+        function initializeProfessionalUI() {
+            // Add smooth transitions to cards
+            const cards = document.querySelectorAll('.stat-card, .action-card, .chart-card, .settings-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Animate stat numbers on load
+            animateStatNumbers();
+            
+            // Add loading states to buttons
+            addLoadingStates();
+        }
+
+        function animateStatNumbers() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const finalValue = parseInt(stat.textContent);
+                let currentValue = 0;
+                const increment = finalValue / 50;
+                
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        stat.textContent = finalValue.toLocaleString();
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(currentValue).toLocaleString();
+                    }
+                }, 30);
+            });
+        }
+
+        function addRippleEffect() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        }
+
+        function addLoadingStates() {
+            const actionButtons = document.querySelectorAll('.btn-primary');
+            actionButtons.forEach(button => {
+                const originalText = button.innerHTML;
+                button.addEventListener('click', function() {
+                    if (!this.classList.contains('loading')) {
+                        this.classList.add('loading');
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                        
+                        setTimeout(() => {
+                            this.classList.remove('loading');
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    }
+                });
+            });
+        }
+
+        function initializeCharts() {
+            // Initialize all charts with professional styling
+            const chartConfigs = {
+                'emails-chart': {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Emails Sent',
+                            data: [120, 190, 300, 500, 200, 300, 450],
+                            borderColor: 'var(--primary-color)',
+                            backgroundColor: 'var(--primary-color-light)',
+                            tension: 0.4
+                        }]
+                    }
+                },
+                'accounts-chart': {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Active', 'Inactive', 'Pending'],
+                        datasets: [{
+                            data: [12, 3, 2],
+                            backgroundColor: ['var(--success-color)', 'var(--warning-color)', 'var(--danger-color)']
+                        }]
+                    }
+                },
+                'users-chart': {
+                    type: 'bar',
+                    data: {
+                        labels: ['Admin', 'Manager', 'User'],
+                        datasets: [{
+                            label: 'User Count',
+                            data: [2, 5, 15],
+                            backgroundColor: 'var(--primary-color)'
+                        }]
+                    }
+                }
+            };
+
+            Object.keys(chartConfigs).forEach(chartId => {
+                const canvas = document.getElementById(chartId);
+                if (canvas) {
+                    new Chart(canvas, {
+                        ...chartConfigs[chartId],
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function initializeRealTimeUpdates() {
+            // Simulate real-time updates
+            setInterval(() => {
+                updateSystemStatus();
+                updateActivityFeed();
+            }, 30000);
+        }
+
+        function updateSystemStatus() {
+            const statusElements = document.querySelectorAll('.status-indicator');
+            statusElements.forEach(element => {
+                // Simulate status changes
+                const statuses = ['online', 'warning', 'offline'];
+                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                element.className = `status-indicator ${randomStatus}`;
+            });
+        }
+
+        function updateActivityFeed() {
+            const activityList = document.querySelector('.activity-list');
+            if (activityList) {
+                const activities = [
+                    'New user registered: john.doe@example.com',
+                    'Gmail account added: marketing@company.com',
+                    'Email campaign completed: 500 emails sent',
+                    'System backup completed successfully'
+                ];
+                
+                const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+                const activityItem = document.createElement('div');
+                activityItem.className = 'activity-item';
+                activityItem.innerHTML = `
+                    <div class="activity-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">${randomActivity}</div>
+                        <div class="activity-time">Just now</div>
+                    </div>
+                `;
+                
+                activityList.insertBefore(activityItem, activityList.firstChild);
+                
+                // Remove old activities (keep only 5)
+                while (activityList.children.length > 5) {
+                    activityList.removeChild(activityList.lastChild);
+                }
+            }
+        }
+
+        function initializeTooltips() {
+            // Add tooltips to action buttons
+            const tooltips = {
+                'add-account-btn': 'Add a new Gmail account for sending emails',
+                'add-user-btn': 'Create a new user account',
+                'send-emails-btn': 'Go to email sender',
+                'export-data-btn': 'Export system data'
+            };
+
+            Object.keys(tooltips).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.title = tooltips[id];
+                }
+            });
+        }
+
+        // Enhanced modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                
+                // Add fade-in animation
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target.id);
+            }
+        });
+    </script>
+
+    <style>
+        /* Additional professional styles */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .activity-item {
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .form-text {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-indicator.online {
+            background-color: var(--success-color);
+        }
+
+        .status-indicator.warning {
+            background-color: var(--warning-color);
+        }
+
+        .status-indicator.offline {
+            background-color: var(--danger-color);
+        }
+    </style>
 </body>
 </html>

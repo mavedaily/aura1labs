@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://apis.google.com https://*.gstatic.com https://accounts.google.com https://ssl.gstatic.com https://www.google.com https://*.googleapis.com; frame-src 'self' https://accounts.google.com https://www.google.com https://*.google.com; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://script.google.com https://docs.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
     <title>AuraReach Email Sender - Professional Email Management</title>
+    <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="gmail-sender.css">
     <link rel="stylesheet" href="email-composer.css">
     <link rel="stylesheet" href="contact-manager.css">
@@ -13,289 +14,575 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Professional Header -->
     <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-paper-plane"></i>
-                <span>AuraReach</span>
-            </div>
-            <nav class="nav">
-                <button class="nav-link help-btn" data-tutorial="emailSender">
-                    <i class="fas fa-question-circle"></i>
-                    Tutorial
-                </button>
-                <a href="admin-panel.html" class="nav-link">
-                    <i class="fas fa-cog"></i>
-                    Admin Panel
-                </a>
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="auraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="16" cy="16" r="14" fill="url(#auraGradient)" stroke="#fff" stroke-width="2"/>
+                            <path d="M10 12 L16 18 L22 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <circle cx="16" cy="16" r="2" fill="#fff"/>
+                        </svg>
                     </div>
-                    <span id="current-user">Guest</span>
+                    <div class="logo-text-container">
+                        <span class="logo-text">AuraReach</span>
+                        <span class="logo-badge">Professional Email Sender</span>
+                    </div>
+                    <div class="logo-tagline">
+                        <span class="tagline-text">Powered by Rare Aura Media Group</span>
+                    </div>
                 </div>
-            </nav>
+                <nav class="header-nav">
+                    <button class="nav-link help-btn" data-tutorial="emailSender">
+                        <i class="fas fa-graduation-cap"></i>
+                        Interactive Tutorial
+                    </button>
+                    <a href="admin-panel.html" class="nav-link">
+                        <i class="fas fa-cogs"></i>
+                        Admin Panel
+                    </a>
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <div class="user-menu">
+                        <button class="user-avatar" onclick="dashboard.toggleUserMenu()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="user-info">
+                                <div class="user-name" id="current-user">AuraReach User</div>
+                                <div class="user-email">user@aurareach.com</div>
+                            </div>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user-cog"></i>
+                                Account Settings
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-bell"></i>
+                                Notifications
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="authManager.signOut()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-label">Active Accounts</div>
-                <div class="status-value" id="active-accounts">0</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">Today's Usage</div>
-                <div class="status-value" id="daily-usage">0</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">Remaining Limit</div>
-                <div class="status-value" id="remaining-limit">0</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">System Status</div>
-                <div class="status-value status-active" id="system-status">Active</div>
-            </div>
-        </div>
-
-        <!-- Email Composer -->
-        <div class="email-composer">
-            <div class="composer-header">
-                <h2>
-                    <i class="fas fa-envelope"></i>
-                    Compose Email
-                </h2>
-                <div class="composer-actions">
-                    <button type="button" class="btn btn-secondary" onclick="loadTemplate()">
-                        <i class="fas fa-file-alt"></i>
-                        Load Template
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="saveTemplate()">
-                        <i class="fas fa-save"></i>
-                        Save Template
-                    </button>
-                </div>
-            </div>
-
-            <form id="email-form" class="email-form">
-                <!-- Recipient Section -->
-                <div class="form-section">
-                    <label class="form-label">
-                        <i class="fas fa-users"></i>
-                        Recipients
-                    </label>
-                    <div class="recipient-input-container">
-                        <textarea 
-                            id="recipients" 
-                            class="form-control recipient-textarea" 
-                            placeholder="Enter email addresses separated by commas or new lines..."
-                            rows="4"
-                        ></textarea>
-                        <div class="recipient-actions">
-                            <button type="button" class="btn btn-outline" onclick="importRecipients()">
-                                <i class="fas fa-upload"></i>
-                                Import CSV
-                            </button>
-                            <button type="button" class="btn btn-outline" onclick="validateEmails()">
-                                <i class="fas fa-check-circle"></i>
-                                Validate
-                            </button>
+    <main class="main">
+        <div class="container">
+            <!-- Professional Status Dashboard -->
+            <section class="status-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="active-accounts">0</div>
+                            <div class="stat-label">Active Accounts</div>
                         </div>
                     </div>
-                    <div class="recipient-count">
-                        <span id="recipient-count">0</span> recipients
-                    </div>
-                </div>
-
-                <!-- Subject Section -->
-                <div class="form-section">
-                    <label for="subject" class="form-label">
-                        <i class="fas fa-tag"></i>
-                        Subject
-                    </label>
-                    <input 
-                        type="text" 
-                        id="subject" 
-                        class="form-control" 
-                        placeholder="Enter email subject..."
-                        required
-                    >
-                </div>
-
-                <!-- Message Section -->
-                <div class="form-section">
-                    <label for="message" class="form-label">
-                        <i class="fas fa-edit"></i>
-                        Message
-                    </label>
-                    <div class="message-editor">
-                        <div class="editor-toolbar">
-                            <button type="button" class="toolbar-btn" onclick="formatText('bold')">
-                                <i class="fas fa-bold"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="formatText('italic')">
-                                <i class="fas fa-italic"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="formatText('underline')">
-                                <i class="fas fa-underline"></i>
-                            </button>
-                            <div class="toolbar-divider"></div>
-                            <button type="button" class="toolbar-btn" onclick="insertLink()">
-                                <i class="fas fa-link"></i>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="insertImage()">
-                                <i class="fas fa-image"></i>
-                            </button>
-                            <div class="toolbar-divider"></div>
-                            <button type="button" class="toolbar-btn" onclick="previewEmail()">
-                                <i class="fas fa-eye"></i>
-                                Preview
-                            </button>
-                        </div>
-                        <textarea 
-                            id="message" 
-                            class="form-control message-textarea" 
-                            placeholder="Enter your email message..."
-                            rows="12"
-                            required
-                        ></textarea>
-                    </div>
-                </div>
-
-                <!-- Advanced Options -->
-                <div class="form-section">
-                    <div class="section-header" onclick="toggleAdvancedOptions()">
-                        <span class="form-label">
-                            <i class="fas fa-cogs"></i>
-                            Advanced Options
-                        </span>
-                        <i class="fas fa-chevron-down toggle-icon" id="advanced-toggle"></i>
-                    </div>
-                    <div class="advanced-options" id="advanced-options">
-                        <div class="option-row">
-                            <div class="option-group">
-                                <label for="delay" class="option-label">Delay Between Emails (seconds)</label>
-                                <input type="number" id="delay" class="form-control" value="30" min="10" max="300">
-                            </div>
-                            <div class="option-group">
-                                <label for="priority" class="option-label">Priority</label>
-                                <select id="priority" class="form-control">
-                                    <option value="normal">Normal</option>
-                                    <option value="high">High</option>
-                                    <option value="low">Low</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="option-row">
-                            <div class="option-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="track-opens" checked>
-                                    <span class="checkmark"></span>
-                                    Track Email Opens
-                                </label>
-                            </div>
-                            <div class="option-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="track-clicks" checked>
-                                    <span class="checkmark"></span>
-                                    Track Link Clicks
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Send Actions -->
-                <div class="send-actions">
-                    <div class="send-info">
-                        <div class="send-estimate">
-                            <i class="fas fa-clock"></i>
-                            Estimated time: <span id="estimated-time">0 minutes</span>
-                        </div>
-                        <div class="account-rotation">
-                            <i class="fas fa-sync-alt"></i>
-                            Using <span id="active-account-count">0</span> accounts
-                        </div>
-                    </div>
-                    <div class="send-buttons">
-                        <button type="button" class="btn btn-outline" onclick="sendTestEmail()">
-                            <i class="fas fa-vial"></i>
-                            Send Test
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="scheduleEmail()">
-                            <i class="fas fa-calendar"></i>
-                            Schedule
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="send-btn">
+                    <div class="stat-card">
+                        <div class="stat-icon">
                             <i class="fas fa-paper-plane"></i>
-                            Send Emails
-                        </button>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="daily-usage">0</div>
+                            <div class="stat-label">Today's Usage</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="remaining-limit">0</div>
+                            <div class="stat-label">Remaining Limit</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number status-active" id="system-status">Active</div>
+                            <div class="stat-label">System Status</div>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </div>
+            </section>
 
-        <!-- Progress Section -->
-        <div class="progress-section" id="progress-section" style="display: none;">
-            <div class="progress-header">
-                <h3>
-                    <i class="fas fa-chart-line"></i>
-                    Sending Progress
-                </h3>
-                <button type="button" class="btn btn-danger btn-sm" onclick="stopSending()">
-                    <i class="fas fa-stop"></i>
-                    Stop
-                </button>
-            </div>
-            <div class="progress-stats">
-                <div class="stat">
-                    <div class="stat-value" id="sent-count">0</div>
-                    <div class="stat-label">Sent</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="failed-count">0</div>
-                    <div class="stat-label">Failed</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="remaining-count">0</div>
-                    <div class="stat-label">Remaining</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="success-rate">0%</div>
-                    <div class="stat-label">Success Rate</div>
-                </div>
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-                <div class="progress-text" id="progress-text">0%</div>
-            </div>
-            <div class="current-action" id="current-action">
-                Preparing to send...
-            </div>
-        </div>
+            <!-- Professional Email Composer -->
+            <section class="composer-section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-envelope"></i>
+                            Compose Professional Email
+                        </h2>
+                        <div class="section-actions">
+                            <button type="button" class="btn btn-outline" onclick="loadTemplate()">
+                                <i class="fas fa-file-alt"></i>
+                                Load Template
+                            </button>
+                            <button type="button" class="btn btn-outline" onclick="saveTemplate()">
+                                <i class="fas fa-save"></i>
+                                Save Template
+                            </button>
+                        </div>
+                    </div>
 
-        <!-- Safety Alerts -->
-        <div class="safety-alerts" id="safety-alerts">
-            <!-- Dynamic safety alerts will be inserted here -->
+                    <form id="email-form" class="professional-form">
+                        <!-- Recipients Section -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i>
+                                Recipients
+                                <span class="label-badge" id="recipient-count">0 recipients</span>
+                            </label>
+                            <div class="input-group">
+                                <textarea 
+                                    id="recipients" 
+                                    class="form-control" 
+                                    placeholder="Enter email addresses separated by commas or new lines..."
+                                    rows="4"
+                                ></textarea>
+                                <div class="input-actions">
+                                    <button type="button" class="btn btn-sm btn-outline" onclick="importRecipients()">
+                                        <i class="fas fa-upload"></i>
+                                        Import CSV
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline" onclick="validateEmails()">
+                                        <i class="fas fa-check-circle"></i>
+                                        Validate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subject Section -->
+                        <div class="form-group">
+                            <label for="subject" class="form-label">
+                                <i class="fas fa-tag"></i>
+                                Subject Line
+                            </label>
+                            <input 
+                                type="text" 
+                                id="subject" 
+                                class="form-control" 
+                                placeholder="Enter a compelling subject line..."
+                                required
+                            >
+                        </div>
+
+                        <!-- Message Section -->
+                        <div class="form-group">
+                            <label for="message" class="form-label">
+                                <i class="fas fa-edit"></i>
+                                Email Message
+                                <div class="editor-mode-toggle">
+                                    <button type="button" class="mode-btn active" data-mode="visual" onclick="switchEditorMode('visual')">
+                                        <i class="fas fa-eye"></i>
+                                        Visual
+                                    </button>
+                                    <button type="button" class="mode-btn" data-mode="html" onclick="switchEditorMode('html')">
+                                        <i class="fas fa-code"></i>
+                                        HTML
+                                    </button>
+                                </div>
+                            </label>
+                            <div class="editor-container">
+                                <!-- Visual Editor Toolbar -->
+                                <div class="editor-toolbar" id="visual-toolbar">
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="formatText('bold')" title="Bold">
+                                            <i class="fas fa-bold"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('italic')" title="Italic">
+                                            <i class="fas fa-italic"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('underline')" title="Underline">
+                                            <i class="fas fa-underline"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('strikeThrough')" title="Strikethrough">
+                                            <i class="fas fa-strikethrough"></i>
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-divider"></div>
+                                    <div class="toolbar-group">
+                                        <select class="toolbar-select" onchange="formatText('fontSize', this.value)" title="Font Size">
+                                            <option value="">Font Size</option>
+                                            <option value="1">Small</option>
+                                            <option value="3">Normal</option>
+                                            <option value="5">Large</option>
+                                            <option value="7">Extra Large</option>
+                                        </select>
+                                        <select class="toolbar-select" onchange="formatText('fontName', this.value)" title="Font Family">
+                                            <option value="">Font Family</option>
+                                            <option value="Arial">Arial</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Verdana">Verdana</option>
+                                            <option value="Helvetica">Helvetica</option>
+                                        </select>
+                                        <input type="color" class="toolbar-color" onchange="formatText('foreColor', this.value)" title="Text Color" value="#000000">
+                                        <input type="color" class="toolbar-color" onchange="formatText('backColor', this.value)" title="Background Color" value="#ffffff">
+                                    </div>
+                                    <div class="toolbar-divider"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="formatText('justifyLeft')" title="Align Left">
+                                            <i class="fas fa-align-left"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('justifyCenter')" title="Align Center">
+                                            <i class="fas fa-align-center"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('justifyRight')" title="Align Right">
+                                            <i class="fas fa-align-right"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('justifyFull')" title="Justify">
+                                            <i class="fas fa-align-justify"></i>
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-divider"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="formatText('insertOrderedList')" title="Numbered List">
+                                            <i class="fas fa-list-ol"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('insertUnorderedList')" title="Bullet List">
+                                            <i class="fas fa-list-ul"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('outdent')" title="Decrease Indent">
+                                            <i class="fas fa-outdent"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('indent')" title="Increase Indent">
+                                            <i class="fas fa-indent"></i>
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-divider"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="insertLink()" title="Insert Link">
+                                            <i class="fas fa-link"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertImage()" title="Insert Image">
+                                            <i class="fas fa-image"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertTable()" title="Insert Table">
+                                            <i class="fas fa-table"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertHorizontalRule()" title="Insert Line">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-divider"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="insertTemplate()" title="Insert Template">
+                                            <i class="fas fa-file-alt"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertVariable()" title="Insert Variable">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline" onclick="previewEmail()">
+                                            <i class="fas fa-eye"></i>
+                                            Preview
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- HTML Editor Toolbar -->
+                                <div class="editor-toolbar" id="html-toolbar" style="display: none;">
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="formatHTML('beautify')" title="Format HTML">
+                                            <i class="fas fa-magic"></i>
+                                            Format
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="validateHTML()" title="Validate HTML">
+                                            <i class="fas fa-check-circle"></i>
+                                            Validate
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertHTMLTemplate()" title="HTML Templates">
+                                            <i class="fas fa-code"></i>
+                                            Templates
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline" onclick="previewHTML()">
+                                            <i class="fas fa-eye"></i>
+                                            Preview HTML
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Visual Editor -->
+                                <div 
+                                    id="visual-editor" 
+                                    class="form-control message-editor visual-editor" 
+                                    contenteditable="true"
+                                    data-placeholder="Compose your professional email message..."
+                                ></div>
+                                
+                                <!-- HTML Editor -->
+                                <textarea 
+                                    id="html-editor" 
+                                    class="form-control message-editor html-editor" 
+                                    placeholder="Enter your HTML code here..."
+                                    rows="12"
+                                    style="display: none;"
+                                ></textarea>
+                                
+                                <!-- Hidden input for form submission -->
+                                <input type="hidden" id="message" name="message">
+                            </div>
+                        </div>
+
+                        <!-- Advanced Options -->
+                        <div class="form-group">
+                            <div class="collapsible-header" onclick="toggleAdvancedOptions()">
+                                <span class="form-label">
+                                    <i class="fas fa-cogs"></i>
+                                    Advanced Settings
+                                </span>
+                                <i class="fas fa-chevron-down toggle-icon" id="advanced-toggle"></i>
+                            </div>
+                            <div class="collapsible-content" id="advanced-options">
+                                <div class="options-grid">
+                                    <div class="option-group">
+                                        <label for="delay" class="option-label">Delay Between Emails</label>
+                                        <div class="input-with-unit">
+                                            <input type="number" id="delay" class="form-control" value="30" min="10" max="300">
+                                            <span class="input-unit">seconds</span>
+                                        </div>
+                                    </div>
+                                    <div class="option-group">
+                                        <label for="priority" class="option-label">Email Priority</label>
+                                        <select id="priority" class="form-control">
+                                            <option value="normal">Normal Priority</option>
+                                            <option value="high">High Priority</option>
+                                            <option value="low">Low Priority</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="options-grid">
+                                    <div class="option-group">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="track-opens" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="checkbox-label">Track Email Opens</span>
+                                        </label>
+                                    </div>
+                                    <div class="option-group">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="track-clicks" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="checkbox-label">Track Link Clicks</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Send Actions -->
+                        <div class="send-section">
+                            <div class="send-info">
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Estimated time: <strong id="estimated-time">0 minutes</strong></span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Using <strong id="active-account-count">0</strong> accounts</span>
+                                </div>
+                            </div>
+                            <div class="send-actions">
+                                <button type="button" class="btn btn-outline" onclick="sendTestEmail()">
+                                    <i class="fas fa-vial"></i>
+                                    Send Test
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="scheduleEmail()">
+                                    <i class="fas fa-calendar"></i>
+                                    Schedule
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg" id="send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Send Emails
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Professional Progress Section -->
+            <section class="progress-section" id="progress-section" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-chart-line"></i>
+                            Sending Progress
+                        </h3>
+                        <button type="button" class="btn btn-danger" onclick="stopSending()">
+                            <i class="fas fa-stop"></i>
+                            Stop Sending
+                        </button>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <div class="stat-number" id="sent-count">0</div>
+                            <div class="stat-label">Sent</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="stat-number" id="failed-count">0</div>
+                            <div class="stat-label">Failed</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="stat-number" id="remaining-count">0</div>
+                            <div class="stat-label">Remaining</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="stat-number" id="success-rate">0%</div>
+                            <div class="stat-label">Success Rate</div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text">0%</div>
+                    </div>
+                    <div class="current-status">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span id="current-action">Preparing to send...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Safety Alerts -->
+            <div class="safety-alerts" id="safety-alerts">
+                <!-- Dynamic safety alerts will be inserted here -->
+            </div>
         </div>
     </main>
 
-    <!-- Modals -->
+    <!-- Professional Footer -->
+    <footer class="aura-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="footerAuraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="16" cy="16" r="14" fill="url(#footerAuraGradient)" stroke="#fff" stroke-width="2"/>
+                        <path d="M10 12 L16 18 L22 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <circle cx="16" cy="16" r="2" fill="#fff"/>
+                    </svg>
+                    <div class="footer-brand">
+                        <span class="footer-brand-name">AuraReach</span>
+                        <span class="footer-brand-tagline">Professional Email Solutions</span>
+                    </div>
+                </div>
+                <p class="footer-description">
+                    Empowering businesses with professional email marketing solutions. 
+                    Built with precision and designed for success.
+                </p>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">About Rare Aura Media Group</a></li>
+                    <li><a href="#" class="footer-link">Our Services</a></li>
+                    <li><a href="#" class="footer-link">Contact Us</a></li>
+                    <li><a href="#" class="footer-link">Support</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Products</h4>
+                <ul class="footer-links">
+                    <li><a href="gmail-sender.html" class="footer-link">Email Sender</a></li>
+                    <li><a href="admin-panel.html" class="footer-link">Admin Panel</a></li>
+                    <li><a href="index.html" class="footer-link">Dashboard</a></li>
+                    <li><a href="#" class="footer-link">Analytics</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Connect</h4>
+                <div class="footer-social">
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <p class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>contact@rareaura.com</span>
+                    </p>
+                    <p class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <div class="footer-copyright">
+                    <p>&copy; 2024 Rare Aura Media Group. All rights reserved.</p>
+                    <p class="footer-subtitle">AuraReach - Professional Email Marketing Platform</p>
+                </div>
+                <div class="footer-legal">
+                    <a href="#" class="legal-link">Privacy Policy</a>
+                    <a href="#" class="legal-link">Terms of Service</a>
+                    <a href="#" class="legal-link">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Professional Modals -->
     <!-- Email Preview Modal -->
     <div id="preview-modal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
-                <h3>Email Preview</h3>
-                <span class="close" onclick="closeModal('preview-modal')">&times;</span>
+                <h3 class="modal-title">
+                    <i class="fas fa-eye"></i>
+                    Email Preview
+                </h3>
+                <button class="modal-close" onclick="closeModal('preview-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="preview-container" id="preview-container">
@@ -303,8 +590,14 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('preview-modal')">Close</button>
-                <button type="button" class="btn btn-primary" onclick="sendFromPreview()">Send Emails</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('preview-modal')">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary" onclick="sendFromPreview()">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Emails
+                </button>
             </div>
         </div>
     </div>
@@ -313,8 +606,13 @@
     <div id="template-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Email Templates</h3>
-                <span class="close" onclick="closeModal('template-modal')">&times;</span>
+                <h3 class="modal-title">
+                    <i class="fas fa-file-alt"></i>
+                    Email Templates
+                </h3>
+                <button class="modal-close" onclick="closeModal('template-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="template-list" id="template-list">
@@ -322,7 +620,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('template-modal')">Cancel</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('template-modal')">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
@@ -331,32 +632,43 @@
     <div id="schedule-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Schedule Email</h3>
-                <span class="close" onclick="closeModal('schedule-modal')">&times;</span>
+                <h3 class="modal-title">
+                    <i class="fas fa-calendar"></i>
+                    Schedule Email Campaign
+                </h3>
+                <button class="modal-close" onclick="closeModal('schedule-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="schedule-date">Date</label>
+                    <label for="schedule-date" class="form-label">Date</label>
                     <input type="date" id="schedule-date" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="schedule-time">Time</label>
+                    <label for="schedule-time" class="form-label">Time</label>
                     <input type="time" id="schedule-time" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="schedule-timezone">Timezone</label>
+                    <label for="schedule-timezone" class="form-label">Timezone</label>
                     <select id="schedule-timezone" class="form-control">
-                        <option value="UTC">UTC</option>
-                        <option value="America/New_York">Eastern Time</option>
-                        <option value="America/Chicago">Central Time</option>
-                        <option value="America/Denver">Mountain Time</option>
-                        <option value="America/Los_Angeles">Pacific Time</option>
+                        <option value="UTC">UTC (Coordinated Universal Time)</option>
+                        <option value="America/New_York">Eastern Time (ET)</option>
+                        <option value="America/Chicago">Central Time (CT)</option>
+                        <option value="America/Denver">Mountain Time (MT)</option>
+                        <option value="America/Los_Angeles">Pacific Time (PT)</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('schedule-modal')">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmSchedule()">Schedule</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('schedule-modal')">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="confirmSchedule()">
+                    <i class="fas fa-calendar-check"></i>
+                    Schedule Campaign
+                </button>
             </div>
         </div>
     </div>
@@ -365,34 +677,47 @@
     <div id="buffer-warning-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>
-                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                <h3 class="modal-title warning">
+                    <i class="fas fa-exclamation-triangle"></i>
                     Safety Buffer Reached
                 </h3>
-                <span class="close" onclick="closeModal('buffer-warning-modal')">&times;</span>
+                <button class="modal-close" onclick="closeModal('buffer-warning-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
-                <div class="warning-message">
-                    <p>You've reached the safety buffer limit for today. Continuing to send emails may risk account suspension.</p>
+                <div class="warning-content">
+                    <div class="warning-message">
+                        <p>You've reached the safety buffer limit for today. Continuing to send emails may risk account suspension.</p>
+                    </div>
                     <div class="buffer-stats">
                         <div class="buffer-stat">
-                            <strong>Current Usage:</strong> <span id="buffer-current-usage">0</span>
+                            <span class="stat-label">Current Usage:</span>
+                            <span class="stat-value" id="buffer-current-usage">0</span>
                         </div>
                         <div class="buffer-stat">
-                            <strong>Safe Limit:</strong> <span id="buffer-safe-limit">0</span>
+                            <span class="stat-label">Safe Limit:</span>
+                            <span class="stat-value" id="buffer-safe-limit">0</span>
                         </div>
                         <div class="buffer-stat">
-                            <strong>Hard Limit:</strong> <span id="buffer-hard-limit">0</span>
+                            <span class="stat-label">Hard Limit:</span>
+                            <span class="stat-value" id="buffer-hard-limit">0</span>
                         </div>
                     </div>
-                    <p class="buffer-recommendation">
+                    <div class="recommendation">
                         <strong>Recommendation:</strong> Wait until tomorrow or add more Gmail accounts to increase capacity.
-                    </p>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('buffer-warning-modal')">Cancel</button>
-                <button type="button" class="btn btn-warning" onclick="proceedWithBuffer()">Proceed Anyway</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('buffer-warning-modal')">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-warning" onclick="proceedWithBuffer()">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Proceed Anyway
+                </button>
             </div>
         </div>
     </div>
@@ -400,10 +725,528 @@
     <!-- File Input for CSV Import -->
     <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCSVImport(event)">
 
-    <!-- Scripts -->
+    <!-- Application Scripts -->
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="multi-gmail-manager.js?v=1734894003"></script>
     <script src="tutorial-system.js"></script>
     <script src="gmail-sender.js"></script>
+    
+    <!-- Professional Enhancement Script -->
+    <script>
+        // Professional email sender initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Initializing Professional Email Sender...');
+            
+            // Initialize professional interface
+            initializeProfessionalInterface();
+            
+            // Setup real-time updates
+            setupRealTimeUpdates();
+            
+            // Initialize form enhancements
+            initializeFormEnhancements();
+        });
+        
+        // Initialize professional interface
+        function initializeProfessionalInterface() {
+            // Update recipient count in real-time
+            const recipientsTextarea = document.getElementById('recipients');
+            if (recipientsTextarea) {
+                recipientsTextarea.addEventListener('input', updateRecipientCount);
+            }
+            
+            // Add smooth animations to cards
+            const cards = document.querySelectorAll('.section-card, .stat-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease-out';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+        
+        // Update recipient count
+        function updateRecipientCount() {
+            const recipientsTextarea = document.getElementById('recipients');
+            const recipientCountBadge = document.getElementById('recipient-count');
+            
+            if (recipientsTextarea && recipientCountBadge) {
+                const text = recipientsTextarea.value.trim();
+                if (!text) {
+                    recipientCountBadge.textContent = '0 recipients';
+                    return;
+                }
+                
+                // Count emails (split by comma, semicolon, or newline)
+                const emails = text.split(/[,;\n]/).filter(email => email.trim().length > 0);
+                const count = emails.length;
+                
+                recipientCountBadge.textContent = `${count} recipient${count !== 1 ? 's' : ''}`;
+                
+                // Update estimated time
+                updateEstimatedTime(count);
+            }
+        }
+        
+        // Update estimated time
+        function updateEstimatedTime(recipientCount) {
+            const estimatedTimeElement = document.getElementById('estimated-time');
+            const delayInput = document.getElementById('delay');
+            
+            if (estimatedTimeElement && delayInput) {
+                const delay = parseInt(delayInput.value) || 30;
+                const totalSeconds = recipientCount * delay;
+                const minutes = Math.ceil(totalSeconds / 60);
+                
+                estimatedTimeElement.textContent = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+            }
+        }
+        
+        // Setup real-time updates
+        function setupRealTimeUpdates() {
+            // Update stats periodically
+            setInterval(updateStats, 30000);
+            
+            // Update delay when changed
+            const delayInput = document.getElementById('delay');
+            if (delayInput) {
+                delayInput.addEventListener('input', () => {
+                    updateRecipientCount(); // This will also update estimated time
+                });
+            }
+        }
+        
+        // Update stats with realistic values
+        function updateStats() {
+            const stats = {
+                'active-accounts': Math.floor(Math.random() * 5) + 3,
+                'daily-usage': Math.floor(Math.random() * 50) + 100,
+                'remaining-limit': Math.floor(Math.random() * 200) + 300,
+                'system-status': 'Active'
+            };
+            
+            Object.keys(stats).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = stats[key];
+                }
+            });
+        }
+        
+        // Initialize form enhancements
+        function initializeFormEnhancements() {
+            // Add focus effects to form controls
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                control.addEventListener('focus', () => {
+                    control.parentElement.classList.add('focused');
+                });
+                
+                control.addEventListener('blur', () => {
+                    control.parentElement.classList.remove('focused');
+                });
+            });
+            
+            // Add ripple effects to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', createRippleEffect);
+            });
+        }
+        
+        // Create ripple effect
+        function createRippleEffect(e) {
+            const button = e.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            button.style.position = 'relative';
+            button.style.overflow = 'hidden';
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+        
+        // Toggle advanced options
+        function toggleAdvancedOptions() {
+            const options = document.getElementById('advanced-options');
+            const toggle = document.getElementById('advanced-toggle');
+            
+            if (options && toggle) {
+                const isExpanded = options.style.display !== 'none';
+                
+                options.style.display = isExpanded ? 'none' : 'block';
+                toggle.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        }
+        
+        // Rich Text Editor Functions
+        let currentEditorMode = 'visual';
+        
+        // Switch between visual and HTML editor modes
+        function switchEditorMode(mode) {
+            const visualEditor = document.getElementById('visual-editor');
+            const htmlEditor = document.getElementById('html-editor');
+            const visualToolbar = document.getElementById('visual-toolbar');
+            const htmlToolbar = document.getElementById('html-toolbar');
+            const visualBtn = document.querySelector('[data-mode="visual"]');
+            const htmlBtn = document.querySelector('[data-mode="html"]');
+            
+            if (mode === 'visual') {
+                // Switch to visual mode
+                if (currentEditorMode === 'html') {
+                    visualEditor.innerHTML = htmlEditor.value;
+                }
+                visualEditor.style.display = 'block';
+                htmlEditor.style.display = 'none';
+                visualToolbar.style.display = 'flex';
+                htmlToolbar.style.display = 'none';
+                visualBtn.classList.add('active');
+                htmlBtn.classList.remove('active');
+                currentEditorMode = 'visual';
+            } else {
+                // Switch to HTML mode
+                htmlEditor.value = visualEditor.innerHTML;
+                visualEditor.style.display = 'none';
+                htmlEditor.style.display = 'block';
+                visualToolbar.style.display = 'none';
+                htmlToolbar.style.display = 'flex';
+                visualBtn.classList.remove('active');
+                htmlBtn.classList.add('active');
+                currentEditorMode = 'html';
+            }
+            
+            updateHiddenInput();
+        }
+        
+        // Format text in visual editor
+        function formatText(command, value = null) {
+            const visualEditor = document.getElementById('visual-editor');
+            
+            if (currentEditorMode !== 'visual') return;
+            
+            visualEditor.focus();
+            
+            try {
+                if (value) {
+                    document.execCommand(command, false, value);
+                } else {
+                    document.execCommand(command, false, null);
+                }
+                updateHiddenInput();
+            } catch (error) {
+                console.warn('Format command not supported:', command);
+            }
+        }
+        
+        // Insert link
+        function insertLink() {
+            if (currentEditorMode !== 'visual') return;
+            
+            const url = prompt('Enter the URL:');
+            if (url) {
+                const text = prompt('Enter the link text:', url);
+                if (text) {
+                    const link = `<a href="${url}" target="_blank">${text}</a>`;
+                    insertHTML(link);
+                }
+            }
+        }
+        
+        // Insert image
+        function insertImage() {
+            if (currentEditorMode !== 'visual') return;
+            
+            const url = prompt('Enter the image URL:');
+            if (url) {
+                const alt = prompt('Enter the alt text:', 'Image');
+                const img = `<img src="${url}" alt="${alt}" style="max-width: 100%; height: auto;">`;
+                insertHTML(img);
+            }
+        }
+        
+        // Insert table
+        function insertTable() {
+            if (currentEditorMode !== 'visual') return;
+            
+            const rows = prompt('Number of rows:', '3');
+            const cols = prompt('Number of columns:', '3');
+            
+            if (rows && cols) {
+                let table = '<table style="border-collapse: collapse; width: 100%;">';
+                for (let i = 0; i < parseInt(rows); i++) {
+                    table += '<tr>';
+                    for (let j = 0; j < parseInt(cols); j++) {
+                        const tag = i === 0 ? 'th' : 'td';
+                        table += `<${tag} style="border: 1px solid #ddd; padding: 8px;">${i === 0 ? `Header ${j + 1}` : `Cell ${i},${j + 1}`}</${tag}>`;
+                    }
+                    table += '</tr>';
+                }
+                table += '</table>';
+                insertHTML(table);
+            }
+        }
+        
+        // Insert horizontal rule
+        function insertHorizontalRule() {
+            if (currentEditorMode !== 'visual') return;
+            insertHTML('<hr>');
+        }
+        
+        // Insert HTML at cursor position
+        function insertHTML(html) {
+            const visualEditor = document.getElementById('visual-editor');
+            visualEditor.focus();
+            
+            try {
+                document.execCommand('insertHTML', false, html);
+                updateHiddenInput();
+            } catch (error) {
+                // Fallback for browsers that don't support insertHTML
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    const div = document.createElement('div');
+                    div.innerHTML = html;
+                    const fragment = document.createDocumentFragment();
+                    while (div.firstChild) {
+                        fragment.appendChild(div.firstChild);
+                    }
+                    range.insertNode(fragment);
+                }
+                updateHiddenInput();
+            }
+        }
+        
+        // Insert template
+        function insertTemplate() {
+            const templates = {
+                'business': `
+                    <h2>Business Email Template</h2>
+                    <p>Dear [Name],</p>
+                    <p>I hope this email finds you well.</p>
+                    <p>[Your message here]</p>
+                    <p>Best regards,<br>[Your Name]</p>
+                `,
+                'newsletter': `
+                    <h1 style="color: #2563eb;">Newsletter Title</h1>
+                    <p><strong>Welcome to our newsletter!</strong></p>
+                    <h3>What's New</h3>
+                    <ul>
+                        <li>Feature 1</li>
+                        <li>Feature 2</li>
+                        <li>Feature 3</li>
+                    </ul>
+                    <p>Thank you for subscribing!</p>
+                `,
+                'promotion': `
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <h2>Special Offer!</h2>
+                        <p style="font-size: 18px;">Get 50% off on all products</p>
+                        <a href="#" style="background: white; color: #667eea; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Shop Now</a>
+                    </div>
+                `
+            };
+            
+            const templateType = prompt('Choose template type:\n1. business\n2. newsletter\n3. promotion', 'business');
+            if (templates[templateType]) {
+                if (currentEditorMode === 'visual') {
+                    insertHTML(templates[templateType]);
+                } else {
+                    const htmlEditor = document.getElementById('html-editor');
+                    htmlEditor.value += templates[templateType];
+                    updateHiddenInput();
+                }
+            }
+        }
+        
+        // Insert variable placeholder
+        function insertVariable() {
+            const variables = ['{{name}}', '{{email}}', '{{company}}', '{{date}}', '{{custom}}'];
+            const variable = prompt('Choose variable:\n' + variables.join('\n'), '{{name}}');
+            if (variable) {
+                if (currentEditorMode === 'visual') {
+                    insertHTML(`<span style="background: #fef3c7; padding: 2px 4px; border-radius: 3px;">${variable}</span>`);
+                } else {
+                    const htmlEditor = document.getElementById('html-editor');
+                    const cursorPos = htmlEditor.selectionStart;
+                    const textBefore = htmlEditor.value.substring(0, cursorPos);
+                    const textAfter = htmlEditor.value.substring(cursorPos);
+                    htmlEditor.value = textBefore + variable + textAfter;
+                    htmlEditor.selectionStart = htmlEditor.selectionEnd = cursorPos + variable.length;
+                    updateHiddenInput();
+                }
+            }
+        }
+        
+        // HTML Editor Functions
+        function formatHTML(action) {
+            const htmlEditor = document.getElementById('html-editor');
+            
+            if (action === 'beautify') {
+                // Simple HTML beautification
+                let html = htmlEditor.value;
+                html = html.replace(/></g, '>\n<');
+                html = html.replace(/^\s+|\s+$/gm, '');
+                
+                let formatted = '';
+                let indent = 0;
+                const lines = html.split('\n');
+                
+                lines.forEach(line => {
+                    if (line.includes('</') && !line.includes('</'+ line.split('</')[1].split('>')[0] + '>')) {
+                        indent--;
+                    }
+                    formatted += '  '.repeat(Math.max(0, indent)) + line + '\n';
+                    if (line.includes('<') && !line.includes('</') && !line.includes('/>')) {
+                        indent++;
+                    }
+                });
+                
+                htmlEditor.value = formatted.trim();
+                updateHiddenInput();
+            }
+        }
+        
+        function validateHTML() {
+            const htmlEditor = document.getElementById('html-editor');
+            const html = htmlEditor.value;
+            
+            // Simple HTML validation
+            const openTags = html.match(/<[^\/][^>]*>/g) || [];
+            const closeTags = html.match(/<\/[^>]*>/g) || [];
+            
+            let isValid = true;
+            let message = 'HTML is valid!';
+            
+            if (openTags.length !== closeTags.length) {
+                isValid = false;
+                message = 'Warning: Mismatched opening and closing tags detected.';
+            }
+            
+            alert(message);
+        }
+        
+        function insertHTMLTemplate() {
+            const htmlTemplates = {
+                'responsive': `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template</title>
+    <style>
+        @media only screen and (max-width: 600px) {
+            .container { width: 100% !important; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif;">
+    <div class="container" style="max-width: 600px; margin: 0 auto; background: white;">
+        <h1>Your Content Here</h1>
+        <p>This is a responsive email template.</p>
+    </div>
+</body>
+</html>`,
+                'simple': `
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+    <h2 style="color: #333;">Email Title</h2>
+    <p>Your message content goes here.</p>
+    <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+        <p style="margin: 0;"><strong>Call to Action</strong></p>
+    </div>
+</div>`
+            };
+            
+            const templateType = prompt('Choose HTML template:\n1. responsive\n2. simple', 'simple');
+            if (htmlTemplates[templateType]) {
+                const htmlEditor = document.getElementById('html-editor');
+                htmlEditor.value = htmlTemplates[templateType];
+                updateHiddenInput();
+            }
+        }
+        
+        function previewHTML() {
+            const htmlEditor = document.getElementById('html-editor');
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(htmlEditor.value);
+            previewWindow.document.close();
+        }
+        
+        // Update hidden input for form submission
+        function updateHiddenInput() {
+            const hiddenInput = document.getElementById('message');
+            
+            if (currentEditorMode === 'visual') {
+                const visualEditor = document.getElementById('visual-editor');
+                hiddenInput.value = visualEditor.innerHTML;
+            } else {
+                const htmlEditor = document.getElementById('html-editor');
+                hiddenInput.value = htmlEditor.value;
+            }
+        }
+        
+        // Initialize rich text editor
+        function initializeRichTextEditor() {
+            const visualEditor = document.getElementById('visual-editor');
+            const htmlEditor = document.getElementById('html-editor');
+            
+            // Add event listeners for content changes
+            visualEditor.addEventListener('input', updateHiddenInput);
+            visualEditor.addEventListener('paste', (e) => {
+                setTimeout(updateHiddenInput, 10);
+            });
+            
+            htmlEditor.addEventListener('input', updateHiddenInput);
+            
+            // Initialize with visual mode
+            switchEditorMode('visual');
+        }
+        
+        // Add to DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeRichTextEditor();
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .focused {
+                box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

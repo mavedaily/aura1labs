@@ -6,144 +6,393 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://apis.google.com https://*.gstatic.com https://accounts.google.com https://ssl.gstatic.com https://www.google.com https://*.googleapis.com; frame-src 'self' https://accounts.google.com https://www.google.com https://*.google.com; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://script.google.com https://docs.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
     <title>AuraReach - Authentication Test</title>
     <link rel="stylesheet" href="dashboard.css">
-    <style>
-        .test-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .test-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-        
-        .test-result {
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-        
-        .success {
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
-            border: 1px solid #22c55e;
-        }
-        
-        .error {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-        }
-        
-        .info {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-            border: 1px solid #3b82f6;
-        }
-        
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 5px;
-            font-size: 14px;
-        }
-        
-        .btn:hover {
-            background: var(--primary-hover);
-        }
-        
-        .user-info {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-top: 10px;
-        }
-        
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 15px;
-        }
-        
-        .user-details {
-            display: flex;
-            align-items: center;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div class="test-container">
-        <h1>🔐 AuraReach Authentication Test</h1>
-        <p>This page tests the Google OAuth + Excel authentication system</p>
-        
-        <!-- Configuration Test -->
-        <div class="test-section">
-            <h3>📋 Configuration Test</h3>
-            <button class="btn" onclick="testConfiguration()">Test Configuration</button>
-            <div id="configResult" class="test-result info" style="display: none;"></div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-envelope-circle-check"></i>
+                <span>AuraReach</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="gmail-sender.html" class="nav-link">
+                    <i class="fas fa-paper-plane"></i>
+                    Email Sender
+                </a>
+                <a href="admin-panel.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Admin Panel
+                </a>
+            </nav>
+            <div class="user-menu">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
         </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Authentication Test Center
+                </div>
+                <div class="page-subtitle">
+                    Comprehensive testing suite for Google OAuth and system authentication
+                </div>
+            </div>
+
+            <!-- Test Dashboard -->
+            <div class="test-dashboard">
+                <!-- System Status Overview -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-heartbeat"></i>
+                            System Status
+                        </h2>
+                        <button class="btn btn-primary" onclick="runFullTest()">
+                            <i class="fas fa-play"></i>
+                            Run Full Test
+                        </button>
+                    </div>
+                    <div id="statusResult" class="test-result info" style="display: none;"></div>
+                </div>
         
-        <!-- Google OAuth Test -->
-        <div class="test-section">
-            <h3>🔐 Google OAuth Test</h3>
-            <button class="btn" onclick="testGoogleAuth()">Initialize Google Auth</button>
-            <button class="btn" onclick="signInTest()">Sign In</button>
-            <button class="btn" onclick="signOutTest()">Sign Out</button>
-            <div id="authResult" class="test-result info" style="display: none;"></div>
-            
-            <div id="userInfo" class="user-info" style="display: none;">
-                <div class="user-details">
-                    <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
-                    <div>
-                        <div><strong>Name:</strong> <span id="userName"></span></div>
-                        <div><strong>Email:</strong> <span id="userEmail"></span></div>
-                        <div><strong>Role:</strong> <span id="userRole"></span></div>
+                <!-- Test Sections Grid -->
+                <div class="test-grid">
+                    <!-- Configuration Test -->
+                    <div class="test-card">
+                        <div class="test-card-header">
+                            <div class="test-card-title">
+                                <i class="fas fa-cogs"></i>
+                                Configuration Test
+                            </div>
+                            <div class="test-card-description">
+                                Verify system configuration and environment settings
+                            </div>
+                        </div>
+                        <div class="test-card-actions">
+                            <button class="btn btn-primary" onclick="testConfiguration()">
+                                <i class="fas fa-check-circle"></i>
+                                Test Configuration
+                            </button>
+                        </div>
+                        <div id="configResult" class="test-result info" style="display: none;"></div>
+                    </div>
+
+                    <!-- Google OAuth Test -->
+                    <div class="test-card">
+                        <div class="test-card-header">
+                            <div class="test-card-title">
+                                <i class="fab fa-google"></i>
+                                Google OAuth Test
+                            </div>
+                            <div class="test-card-description">
+                                Test Google authentication and user sign-in flow
+                            </div>
+                        </div>
+                        <div class="test-card-actions">
+                            <button class="btn btn-primary" onclick="testGoogleAuth()">
+                                <i class="fas fa-key"></i>
+                                Initialize Auth
+                            </button>
+                            <button class="btn btn-outline" onclick="signInTest()">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Sign In
+                            </button>
+                            <button class="btn btn-outline" onclick="signOutTest()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Sign Out
+                            </button>
+                        </div>
+                        <div id="authResult" class="test-result info" style="display: none;"></div>
+                        
+                        <div id="userInfo" class="user-info-card" style="display: none;">
+                            <div class="user-info-header">
+                                <i class="fas fa-user-check"></i>
+                                Authenticated User
+                            </div>
+                            <div class="user-details">
+                                <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+                                <div class="user-data">
+                                    <div class="user-field">
+                                        <span class="field-label">Name:</span>
+                                        <span id="userName" class="field-value"></span>
+                                    </div>
+                                    <div class="user-field">
+                                        <span class="field-label">Email:</span>
+                                        <span id="userEmail" class="field-value"></span>
+                                    </div>
+                                    <div class="user-field">
+                                        <span class="field-label">Role:</span>
+                                        <span id="userRole" class="field-value"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Apps Script Test -->
+                    <div class="test-card">
+                        <div class="test-card-header">
+                            <div class="test-card-title">
+                                <i class="fas fa-code"></i>
+                                Apps Script Connection
+                            </div>
+                            <div class="test-card-description">
+                                Test Google Apps Script and database connectivity
+                            </div>
+                        </div>
+                        <div class="test-card-actions">
+                            <button class="btn btn-primary" onclick="testAppsScript()">
+                                <i class="fas fa-link"></i>
+                                Test Apps Script
+                            </button>
+                            <button class="btn btn-outline" onclick="testDatabaseConnection()">
+                                <i class="fas fa-database"></i>
+                                Test Database
+                            </button>
+                        </div>
+                        <div id="scriptResult" class="test-result info" style="display: none;"></div>
+                    </div>
+
+                    <!-- User Management Test -->
+                    <div class="test-card">
+                        <div class="test-card-header">
+                            <div class="test-card-title">
+                                <i class="fas fa-users-cog"></i>
+                                User Management
+                            </div>
+                            <div class="test-card-description">
+                                Test user limits, permissions, and access controls
+                            </div>
+                        </div>
+                        <div class="test-card-actions">
+                            <button class="btn btn-primary" onclick="testUserLimits()">
+                                <i class="fas fa-chart-line"></i>
+                                Test User Limits
+                            </button>
+                            <button class="btn btn-outline" onclick="testPermissions()">
+                                <i class="fas fa-shield-check"></i>
+                                Test Permissions
+                            </button>
+                        </div>
+                        <div id="userResult" class="test-result info" style="display: none;"></div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Apps Script Test -->
-        <div class="test-section">
-            <h3>⚙️ Apps Script Connection Test</h3>
-            <button class="btn" onclick="testAppsScript()">Test Apps Script</button>
-            <button class="btn" onclick="testDatabaseConnection()">Test Database</button>
-            <div id="scriptResult" class="test-result info" style="display: none;"></div>
-        </div>
-        
-        <!-- User Management Test -->
-        <div class="test-section">
-            <h3>👥 User Management Test</h3>
-            <button class="btn" onclick="testUserLimits()">Test User Limits</button>
-            <button class="btn" onclick="testPermissions()">Test Permissions</button>
-            <div id="userResult" class="test-result info" style="display: none;"></div>
-        </div>
-        
-        <!-- System Status -->
-        <div class="test-section">
-            <h3>📊 System Status</h3>
-            <button class="btn" onclick="runFullTest()">Run Full System Test</button>
-            <div id="statusResult" class="test-result info" style="display: none;"></div>
-        </div>
-    </div>
+    </main>
     
     <!-- Include authentication scripts -->
     <script src="auth-config.js"></script>
+    
+    <style>
+        /* Test Grid Layout */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Test Cards */
+        .test-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .test-card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .test-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .test-card-title i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .test-card-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .test-card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        /* User Info Card */
+        .user-info-card {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-info-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .user-info-header i {
+            color: var(--success-color);
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+        }
+
+        .user-data {
+            flex: 1;
+        }
+
+        .user-field {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .field-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            min-width: 60px;
+        }
+
+        .field-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Test Results */
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .test-result.success {
+            background: var(--success-bg);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .test-result.error {
+            background: var(--error-bg);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .test-result.info {
+            background: var(--info-bg);
+            color: var(--info-color);
+            border: 1px solid var(--info-color);
+        }
+
+        /* Button Loading State */
+        .btn.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .test-card-actions {
+                flex-direction: column;
+            }
+
+            .test-card-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .user-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
     
     <script>
         // Use the global authManager from auth-config.js
@@ -151,27 +400,76 @@
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
             showResult('configResult', 'info', 'Page loaded. Ready for testing.');
+            
+            // Add ripple effect to buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
         });
+        
+        function addButtonLoading(buttonElement) {
+            buttonElement.classList.add('loading');
+            buttonElement.disabled = true;
+        }
+
+        function removeButtonLoading(buttonElement) {
+            buttonElement.classList.remove('loading');
+            buttonElement.disabled = false;
+        }
         
         // Test configuration
         function testConfiguration() {
-            try {
-                const config = {
-                    'Excel Sheet ID': AUTH_CONFIG.EXCEL_SHEET_ID || 'Not configured',
-                    'Google OAuth Client ID': AUTH_CONFIG.GOOGLE_OAUTH_CLIENT_ID || 'Not configured',
-                    'Apps Script URL': AUTH_CONFIG.APPS_SCRIPT_URL || 'Not configured',
-                    'Auto Login': AUTH_CONFIG.AUTO_LOGIN ? 'Enabled' : 'Disabled',
-                    'Session Timeout': AUTH_CONFIG.SESSION_TIMEOUT_MINUTES + ' minutes'
-                };
-                
-                showResult('configResult', 'success', 'Configuration loaded successfully:\n' + JSON.stringify(config, null, 2));
-            } catch (error) {
-                showResult('configResult', 'error', 'Configuration test failed: ' + error.message);
-            }
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('configResult', 'info', 'Testing configuration...');
+            
+            setTimeout(() => {
+                try {
+                    const config = {
+                        'Excel Sheet ID': AUTH_CONFIG.EXCEL_SHEET_ID || 'Not configured',
+                        'Google OAuth Client ID': AUTH_CONFIG.GOOGLE_OAUTH_CLIENT_ID || 'Not configured',
+                        'Apps Script URL': AUTH_CONFIG.APPS_SCRIPT_URL || 'Not configured',
+                        'Auto Login': AUTH_CONFIG.AUTO_LOGIN ? 'Enabled' : 'Disabled',
+                        'Session Timeout': AUTH_CONFIG.SESSION_TIMEOUT_MINUTES + ' minutes'
+                    };
+                    
+                    let result = '<strong>Configuration Status:</strong><br>';
+                    for (const [key, value] of Object.entries(config)) {
+                        const status = value !== 'Not configured' ? '✅' : '❌';
+                        result += `${status} ${key}: <span class="field-value">${value}</span><br>`;
+                    }
+                    
+                    showResult('configResult', 'success', result);
+                } catch (error) {
+                    showResult('configResult', 'error', 'Configuration test failed: ' + error.message);
+                }
+                removeButtonLoading(button);
+            }, 1000);
         }
         
         // Test Google Auth initialization
         async function testGoogleAuth() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('authResult', 'info', 'Testing Google Authentication...');
+            
             try {
                 if (typeof window.authManager === 'undefined') {
                     throw new Error('AuthManager not found. Check auth-config.js');
@@ -179,14 +477,19 @@
                 
                 await window.authManager.init();
                 
-                showResult('authResult', 'success', 'Google Auth initialized successfully');
+                showResult('authResult', 'success', '✅ Google Auth initialized successfully');
             } catch (error) {
-                showResult('authResult', 'error', 'Google Auth initialization failed: ' + error.message);
+                showResult('authResult', 'error', '❌ Google Auth initialization failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Test sign in
         async function signInTest() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('authResult', 'info', 'Testing sign in...');
+            
             try {
                 if (!window.authManager) {
                     await testGoogleAuth();
@@ -195,33 +498,43 @@
                 const result = await window.authManager.signIn();
                 
                 if (result.success) {
-                    showResult('authResult', 'success', 'Sign in successful');
+                    showResult('authResult', 'success', '✅ Sign in successful');
                     displayUserInfo(result.user);
                 } else {
                     throw new Error(result.error);
                 }
             } catch (error) {
-                showResult('authResult', 'error', 'Sign in failed: ' + error.message);
+                showResult('authResult', 'error', '❌ Sign in failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Test sign out
         async function signOutTest() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('authResult', 'info', 'Testing sign out...');
+            
             try {
                 if (!window.authManager) {
                     throw new Error('AuthManager not initialized');
                 }
                 
                 await window.authManager.signOut();
-                showResult('authResult', 'success', 'Sign out successful');
+                showResult('authResult', 'success', '✅ Sign out successful');
                 hideUserInfo();
             } catch (error) {
-                showResult('authResult', 'error', 'Sign out failed: ' + error.message);
+                showResult('authResult', 'error', '❌ Sign out failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Test Apps Script connection
         async function testAppsScript() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('scriptResult', 'info', 'Testing Apps Script connection...');
+            
             try {
                 const scriptUrl = AUTH_CONFIG.APPS_SCRIPT_URL;
                 if (!scriptUrl) {
@@ -231,14 +544,19 @@
                 const response = await fetch(scriptUrl + '?test=true');
                 const result = await response.text();
                 
-                showResult('scriptResult', 'success', 'Apps Script connection successful:\n' + result);
+                showResult('scriptResult', 'success', '✅ Apps Script connection successful<br><small>Response: ' + result + '</small>');
             } catch (error) {
-                showResult('scriptResult', 'error', 'Apps Script connection failed: ' + error.message);
+                showResult('scriptResult', 'error', '❌ Apps Script connection failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Test database connection
         async function testDatabaseConnection() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('scriptResult', 'info', 'Testing database connection...');
+            
             try {
                 if (!window.authManager) {
                     throw new Error('AuthManager not initialized');
@@ -247,31 +565,45 @@
                 const result = await window.authManager.testDatabaseConnection();
                 
                 if (result.success) {
-                    showResult('scriptResult', 'success', 'Database connection successful');
+                    showResult('scriptResult', 'success', '✅ Database connection successful');
                 } else {
                     throw new Error(result.error);
                 }
             } catch (error) {
-                showResult('scriptResult', 'error', 'Database connection failed: ' + error.message);
+                showResult('scriptResult', 'error', '❌ Database connection failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Test user limits
         async function testUserLimits() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('userResult', 'info', 'Testing user limits...');
+            
             try {
                 if (!window.authManager || !window.authManager.isAuthenticated) {
                     throw new Error('User not authenticated');
                 }
                 
                 const limits = await window.authManager.getUserLimits();
-                showResult('userResult', 'success', 'User limits retrieved:\n' + JSON.stringify(limits, null, 2));
+                let result = '<strong>User Limits:</strong><br>';
+                for (const [key, value] of Object.entries(limits)) {
+                    result += `${key}: <span class="field-value">${value}</span><br>`;
+                }
+                showResult('userResult', 'success', result);
             } catch (error) {
-                showResult('userResult', 'error', 'User limits test failed: ' + error.message);
+                showResult('userResult', 'error', '❌ User limits test failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Test permissions
         async function testPermissions() {
+            const button = event.target;
+            addButtonLoading(button);
+            showResult('userResult', 'info', 'Testing user permissions...');
+            
             try {
                 if (!window.authManager || !window.authManager.isAuthenticated) {
                     throw new Error('User not authenticated');
@@ -284,14 +616,22 @@
                     'Can Export Data': await window.authManager.checkPermission('export_data')
                 };
                 
-                showResult('userResult', 'success', 'Permissions checked:\n' + JSON.stringify(permissions, null, 2));
+                let result = '<strong>User Permissions:</strong><br>';
+                for (const [perm, allowed] of Object.entries(permissions)) {
+                    result += `${allowed ? '✅' : '❌'} ${perm}<br>`;
+                }
+                
+                showResult('userResult', 'success', result);
             } catch (error) {
-                showResult('userResult', 'error', 'Permissions test failed: ' + error.message);
+                showResult('userResult', 'error', '❌ Permissions test failed: ' + error.message);
             }
+            removeButtonLoading(button);
         }
         
         // Run full system test
         async function runFullTest() {
+            const button = event.target;
+            addButtonLoading(button);
             showResult('statusResult', 'info', 'Running full system test...');
             
             const tests = [
@@ -311,7 +651,9 @@
                 }
             }
             
-            showResult('statusResult', 'info', 'Full system test completed:\n' + results.join('\n'));
+            let result = '<strong>Full System Test Results:</strong><br>' + results.join('<br>');
+            showResult('statusResult', 'info', result);
+            removeButtonLoading(button);
         }
         
         // Display user info
@@ -332,7 +674,7 @@
         function showResult(elementId, type, message) {
             const element = document.getElementById(elementId);
             element.className = `test-result ${type}`;
-            element.textContent = message;
+            element.innerHTML = message;
             element.style.display = 'block';
         }
     </script>

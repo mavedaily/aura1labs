@@ -10,11 +10,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Professional Header -->
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -28,25 +27,28 @@
                 <nav class="header-nav">
                     <button class="nav-link help-btn" onclick="dashboard.showHelp()">
                         <i class="fas fa-question-circle"></i>
-                        Help
+                        Help & Tutorials
                     </button>
                     <div class="user-menu">
                         <button class="user-avatar" onclick="dashboard.toggleUserMenu()">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%231a73e8'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-weight='bold'%3EU%3C/text%3E%3C/svg%3E" alt="User Avatar" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <i class="fas fa-user"></i>
                         </button>
                         <div class="user-dropdown" id="userDropdown">
                             <div class="user-info">
-                                <div class="user-name">Loading...</div>
-                                <div class="user-email">Authenticating...</div>
+                                <div class="user-name">AuraReach User</div>
+                                <div class="user-email">user@aurareach.com</div>
                             </div>
-                            <hr>
                             <a href="#" class="dropdown-item">
-                                <i class="fas fa-cog"></i>
-                                Settings
+                                <i class="fas fa-user-cog"></i>
+                                Account Settings
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-bell"></i>
+                                Notifications
                             </a>
                             <a href="#" class="dropdown-item" id="logout-btn" onclick="authManager.signOut()">
                                 <i class="fas fa-sign-out-alt"></i>
-                                Logout
+                                Sign Out
                             </a>
                         </div>
                     </div>
@@ -58,19 +60,19 @@
     <!-- Main Content -->
     <main class="main">
         <div class="container">
-            <!-- Welcome Section -->
+            <!-- Professional Welcome Section -->
             <section class="welcome-section">
                 <div class="welcome-content">
                     <h1 class="welcome-title">Welcome to AuraReach</h1>
-                    <p class="welcome-subtitle">Professional email management platform with advanced safety features and multi-account support</p>
+                    <p class="welcome-subtitle">The professional email management platform designed for teams and businesses. Send emails safely with advanced account rotation, real-time analytics, and comprehensive safety features.</p>
                     <div class="welcome-actions">
                         <a href="gmail-sender.html" class="btn btn-primary btn-lg">
-                            <i class="fas fa-envelope"></i>
+                            <i class="fas fa-paper-plane"></i>
                             Start Sending Emails
                         </a>
                         <button class="btn btn-outline btn-lg" data-tutorial="overview">
-                            <i class="fas fa-play"></i>
-                            Take a Tour
+                            <i class="fas fa-graduation-cap"></i>
+                            Take Interactive Tour
                         </button>
                     </div>
                 </div>
@@ -92,7 +94,7 @@
                 </div>
             </section>
 
-            <!-- Quick Stats -->
+            <!-- Professional Stats Dashboard -->
             <section class="stats-section">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -134,7 +136,7 @@
                 </div>
             </section>
 
-            <!-- Quick Actions -->
+            <!-- Professional Quick Actions -->
             <section class="actions-section">
                 <h2 class="section-title">Quick Actions</h2>
                 <div class="actions-grid">
@@ -143,8 +145,8 @@
                             <i class="fas fa-paper-plane"></i>
                         </div>
                         <div class="action-content">
-                            <h3>Send Emails</h3>
-                            <p>Compose and send emails with advanced safety features</p>
+                            <h3>Email Sender</h3>
+                            <p>Compose and send professional emails with advanced safety features and account rotation</p>
                         </div>
                         <div class="action-arrow">
                             <i class="fas fa-arrow-right"></i>
@@ -152,11 +154,11 @@
                     </a>
                     <a href="admin-panel.html" class="action-card">
                         <div class="action-icon">
-                            <i class="fas fa-cog"></i>
+                            <i class="fas fa-cogs"></i>
                         </div>
                         <div class="action-content">
                             <h3>Admin Panel</h3>
-                            <p>Manage accounts, users, and system settings</p>
+                            <p>Manage Gmail accounts, users, system settings, and monitor platform performance</p>
                         </div>
                         <div class="action-arrow">
                             <i class="fas fa-arrow-right"></i>
@@ -167,8 +169,8 @@
                             <i class="fas fa-chart-bar"></i>
                         </div>
                         <div class="action-content">
-                            <h3>Analytics</h3>
-                            <p>View detailed reports and usage statistics</p>
+                            <h3>Analytics Dashboard</h3>
+                            <p>View detailed reports, usage statistics, and performance insights</p>
                         </div>
                         <div class="action-arrow">
                             <i class="fas fa-arrow-right"></i>
@@ -176,11 +178,11 @@
                     </div>
                     <div class="action-card" onclick="dashboard.showDocumentation()">
                         <div class="action-icon">
-                            <i class="fas fa-book"></i>
+                            <i class="fas fa-book-open"></i>
                         </div>
                         <div class="action-content">
                             <h3>Documentation</h3>
-                            <p>Learn how to use AuraReach effectively</p>
+                            <p>Learn how to use AuraReach effectively with comprehensive guides</p>
                         </div>
                         <div class="action-arrow">
                             <i class="fas fa-arrow-right"></i>
@@ -189,7 +191,7 @@
                 </div>
             </section>
 
-            <!-- Recent Activity -->
+            <!-- Professional Activity Feed -->
             <section class="activity-section">
                 <h2 class="section-title">Recent Activity</h2>
                 <div class="activity-feed" id="activityFeed">
@@ -198,7 +200,7 @@
                             <i class="fas fa-check"></i>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-text">Email campaign sent successfully</div>
+                            <div class="activity-text">Email campaign sent successfully to 150 recipients</div>
                             <div class="activity-time">2 minutes ago</div>
                         </div>
                     </div>
@@ -207,7 +209,7 @@
                             <i class="fas fa-plus"></i>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-text">New Gmail account added</div>
+                            <div class="activity-text">New Gmail account added and verified</div>
                             <div class="activity-time">15 minutes ago</div>
                         </div>
                     </div>
@@ -216,14 +218,23 @@
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-text">Approaching daily limit (80%)</div>
+                            <div class="activity-text">Approaching daily limit (80% of quota used)</div>
                             <div class="activity-time">1 hour ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-sync"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Account rotation completed successfully</div>
+                            <div class="activity-time">2 hours ago</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Features Overview -->
+            <!-- Professional Features Overview -->
             <section class="features-section">
                 <h2 class="section-title">Platform Features</h2>
                 <div class="features-grid">
@@ -232,49 +243,49 @@
                             <i class="fas fa-sync-alt"></i>
                         </div>
                         <h3>Multi-Account Rotation</h3>
-                        <p>Automatically rotate between multiple Gmail accounts to increase sending capacity and maintain account health.</p>
+                        <p>Automatically rotate between multiple Gmail accounts to increase sending capacity and maintain account health with intelligent load balancing.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-shield-check"></i>
                         </div>
-                        <h3>Safety Buffer System</h3>
-                        <p>Built-in protection with warning alerts at 80% and automatic locks at 95% of daily limits.</p>
+                        <h3>Advanced Safety System</h3>
+                        <p>Built-in protection with warning alerts at 80% and automatic locks at 95% of daily limits to prevent account suspension.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-users-cog"></i>
                         </div>
-                        <h3>User Management</h3>
-                        <p>Add team members with role-based access and individual email sending limits.</p>
+                        <h3>Team Management</h3>
+                        <p>Add team members with role-based access controls and individual email sending limits for better organization.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <h3>Advanced Analytics</h3>
-                        <p>Track performance, monitor usage, and get insights into your email campaigns.</p>
+                        <h3>Real-time Analytics</h3>
+                        <p>Track performance metrics, monitor usage patterns, and get actionable insights into your email campaigns.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <h3>Interactive Tutorials</h3>
-                        <p>Built-in help system with step-by-step tutorials for all features.</p>
+                        <h3>Interactive Learning</h3>
+                        <p>Built-in tutorial system with step-by-step guides and contextual help for all platform features.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-mobile-alt"></i>
                         </div>
                         <h3>Responsive Design</h3>
-                        <p>Works perfectly on desktop, tablet, and mobile devices with modern UI.</p>
+                        <p>Optimized for all devices with a modern, professional interface that works seamlessly on desktop, tablet, and mobile.</p>
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Professional Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -285,22 +296,24 @@
                         </div>
                         <span class="logo-text">AuraReach</span>
                     </div>
-                    <p>Professional email management platform for teams and businesses.</p>
+                    <p>Professional email management platform designed for teams and businesses who need reliable, scalable email sending solutions.</p>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
+                    <h4>Platform</h4>
                     <ul>
                         <li><a href="gmail-sender.html">Email Sender</a></li>
                         <li><a href="admin-panel.html">Admin Panel</a></li>
-                        <li><a href="#" onclick="dashboard.showDocumentation()">Documentation</a></li>
+                        <li><a href="auth-test.html">Authentication Test</a></li>
+                        <li><a href="#" onclick="dashboard.showAnalytics()">Analytics</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Support</h4>
+                    <h4>Support & Learning</h4>
                     <ul>
                         <li><a href="#" onclick="dashboard.showHelp()">Help Center</a></li>
+                        <li><a href="#" data-tutorial="overview">Interactive Tutorials</a></li>
+                        <li><a href="#" onclick="dashboard.showDocumentation()">Documentation</a></li>
                         <li><a href="mailto:support@aurareach.com">Contact Support</a></li>
-                        <li><a href="#" data-tutorial="overview">Tutorials</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -309,106 +322,181 @@
                         <span class="status-dot active"></span>
                         All systems operational
                     </div>
+                    <p>99.9% uptime • Last updated: <span id="lastUpdated">Just now</span></p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 AuraReach. All rights reserved.</p>
+                <p>&copy; 2024 AuraReach. All rights reserved. Built with ❤️ for professional email management.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Authentication Scripts -->
+    <!-- Application Scripts -->
     <script src="auth-config.js"></script>
-    
-    <!-- Main Application Scripts -->
     <script src="multi-gmail-manager.js?v=1734894003"></script>
     <script src="tutorial-system.js"></script>
     <script src="dashboard.js"></script>
     
-    <style>
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .user-actions {
-            margin-left: auto;
-        }
-        
-        .logout-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .logout-btn:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-    </style>
-    
     <!-- Direct Dashboard Loading Script -->
     <script>
-        // Load dashboard immediately when page loads
+        // Professional dashboard initialization
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Loading AuraReach Dashboard directly...');
+            console.log('🚀 Initializing AuraReach Professional Dashboard...');
             
-            // Show dashboard immediately without authentication
+            // Initialize dashboard immediately
+            initializeDashboard();
+            
+            // Set up real-time updates
+            setupRealTimeUpdates();
+            
+            // Initialize user interface
+            updateUserInterface();
+        });
+        
+        // Initialize professional dashboard
+        function initializeDashboard() {
             showDashboard();
-            
-            // Set default user info
             updateUserInfo({
                 email: 'user@aurareach.com',
                 name: 'AuraReach User'
             });
-        });
+            
+            // Update last updated timestamp
+            updateTimestamp();
+        }
         
-        // Show main dashboard (simplified - no authentication needed)
+        // Show main dashboard
         function showDashboard() {
-            // Dashboard is already loaded, just ensure user info is set
             updateUserInfo({
                 name: 'AuraReach User',
                 email: 'user@aurareach.com',
                 picture: ''
             });
+            
+            // Animate stats on load
+            animateStats();
         }
         
         // Update user info in dashboard
         function updateUserInfo(user) {
-            const userAvatar = document.querySelector('.user-avatar img');
             const userName = document.querySelector('.user-name');
             const userEmail = document.querySelector('.user-email');
             
-            if (userAvatar) userAvatar.src = user.picture || '';
             if (userName) userName.textContent = user.name || user.email.split('@')[0];
             if (userEmail) userEmail.textContent = user.email || '';
         }
         
-        // Update user limits display
-        function updateUserLimits(user) {
-            if (user.limits) {
-                // Update any limit displays in the dashboard
-                const limitElements = document.querySelectorAll('[data-user-limit]');
-                limitElements.forEach(element => {
-                    const limitType = element.dataset.userLimit;
-                    if (user.limits[limitType] !== undefined) {
-                        element.textContent = user.limits[limitType];
-                    }
-                });
+        // Animate statistics on page load
+        function animateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach((stat, index) => {
+                setTimeout(() => {
+                    stat.style.opacity = '0';
+                    stat.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        stat.style.transition = 'all 0.6s ease-out';
+                        stat.style.opacity = '1';
+                        stat.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 150);
+            });
+        }
+        
+        // Setup real-time updates
+        function setupRealTimeUpdates() {
+            // Update timestamp every minute
+            setInterval(updateTimestamp, 60000);
+            
+            // Simulate real-time stats updates
+            setInterval(updateStats, 30000);
+        }
+        
+        // Update timestamp
+        function updateTimestamp() {
+            const lastUpdated = document.getElementById('lastUpdated');
+            if (lastUpdated) {
+                lastUpdated.textContent = new Date().toLocaleTimeString();
             }
         }
+        
+        // Update stats with realistic values
+        function updateStats() {
+            const stats = {
+                totalEmailsSent: Math.floor(Math.random() * 50) + 100,
+                activeAccounts: Math.floor(Math.random() * 5) + 3,
+                safetyScore: (95 + Math.random() * 5).toFixed(1) + '%',
+                deliveryRate: (97 + Math.random() * 2).toFixed(1) + '%'
+            };
+            
+            Object.keys(stats).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = stats[key];
+                }
+            });
+        }
+        
+        // Update user interface
+        function updateUserInterface() {
+            // Add smooth scrolling to action cards
+            const actionCards = document.querySelectorAll('.action-card');
+            actionCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-4px)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Add click effects to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    // Create ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = button.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    button.style.position = 'relative';
+                    button.style.overflow = 'hidden';
+                    button.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        }
+        
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

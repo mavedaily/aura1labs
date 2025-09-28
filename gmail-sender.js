@@ -1177,3 +1177,56 @@ class EmailSender {
 
 // Initialize the email sender when the page loads
 const emailSender = new EmailSender();
+
+// Global functions for HTML onclick events
+function loadTemplate() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.showTemplateModal();
+    }
+}
+
+function saveTemplate() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.showNotification('Save template functionality coming soon!', 'info');
+    }
+}
+
+function importRecipients() {
+    if (emailSender && emailSender.isInitialized) {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.csv,.txt';
+        fileInput.onchange = (e) => emailSender.handleCSVImport(e);
+        fileInput.click();
+    }
+}
+
+function validateEmails() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.validateEmails();
+    }
+}
+
+function sendTestEmail() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.showNotification('Test email functionality coming soon!', 'info');
+    }
+}
+
+function scheduleEmail() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.showScheduleModal();
+    }
+}
+
+function previewEmail() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.showPreviewModal();
+    }
+}
+
+function startTutorial() {
+    if (emailSender && emailSender.isInitialized) {
+        emailSender.startTutorial();
+    }
+}
