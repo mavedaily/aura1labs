@@ -359,245 +359,30 @@
         }
     </style>
     
-    <!-- Authentication Integration Script -->
+    <!-- Direct Dashboard Loading Script -->
     <script>
-        // Initialize authentication when page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Show loading state
-            showAuthLoading();
+        // Load dashboard immediately when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Loading AuraReach Dashboard directly...');
             
-            // Wait for auth manager to initialize and try auto-authentication
-            setTimeout(async () => {
-                // Listen for authentication state changes first
-                authManager.addAuthListener((event, data) => {
-                    if (event === 'signin') {
-                        showDashboard();
-                        updateUserInfo(data);
-                    } else if (event === 'signout') {
-                        showLoginScreen();
-                    } else if (event === 'dataRefresh') {
-                        updateUserLimits(data);
-                    }
-                });
-                
-                // Check authentication status immediately first
-                if (authManager.isAuthenticated) {
-                    console.log('User already authenticated, showing dashboard');
-                    showDashboard();
-                    return;
-                }
-                
-                // If not authenticated, wait a bit for auto-authentication to complete
-                let checkCount = 0;
-                const maxChecks = 10; // Check for 5 seconds total
-                
-                const checkAuth = () => {
-                    checkCount++;
-                    console.log(`Authentication check ${checkCount}/${maxChecks}`);
-                    
-                    if (authManager.isAuthenticated) {
-                        console.log('Auto-authentication successful, showing dashboard');
-                        showDashboard();
-                    } else if (checkCount >= maxChecks) {
-                        console.log('Auto-authentication timeout, showing login screen');
-                        showLoginScreen();
-                    } else {
-                        setTimeout(checkAuth, 500);
-                    }
-                };
-                
-                // Start checking after a brief delay
-                setTimeout(checkAuth, 500);
-            }, 300);
+            // Show dashboard immediately without authentication
+            showDashboard();
+            
+            // Set default user info
+            updateUserInfo({
+                email: 'user@aurareach.com',
+                name: 'AuraReach User'
+            });
         });
         
-        // Show loading state
-        function showAuthLoading() {
-            document.body.innerHTML = `
-                <div class="auth-loading">
-                    <div class="loading-spinner"></div>
-                    <h2>Loading AuraReach...</h2>
-                    <p>Initializing authentication system</p>
-                </div>
-                <style>
-                    .auth-loading {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                        background: var(--bg-primary);
-                        color: var(--text-primary);
-                    }
-                    .loading-spinner {
-                        width: 40px;
-                        height: 40px;
-                        border: 4px solid var(--border-color);
-                        border-top: 4px solid var(--primary-color);
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                        margin-bottom: 20px;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            `;
-        }
-        
-        // Show login screen
-        function showLoginScreen() {
-            document.body.innerHTML = `
-                <div class="login-container">
-                    <div class="login-card">
-                        <div class="login-header">
-                            <img src="data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#1a73e8"/><text x="50" y="60" text-anchor="middle" fill="white" font-size="40" font-weight="bold">A</text></svg>')}" alt="AuraReach" class="login-logo">
-                            <h1>AuraReach</h1>
-                            <p>Professional Email Management Platform</p>
-                        </div>
-                        
-                        <div class="login-content">
-                            <h2>Welcome Back</h2>
-                            <p>Sign in with your authorized email to continue</p>
-                            
-                            <button id="auth-btn" class="auth-btn">
-                                <i class="fas fa-envelope"></i>
-                                <span>Sign In with Email</span>
-                            </button>
-                            
-                            <div class="login-features">
-                                <div class="feature">
-                                    <span class="feature-icon">📧</span>
-                                    <span>Multi-Gmail Management</span>
-                                </div>
-                                <div class="feature">
-                                    <span class="feature-icon">📊</span>
-                                    <span>Advanced Analytics</span>
-                                </div>
-                                <div class="feature">
-                                    <span class="feature-icon">🔒</span>
-                                    <span>Secure & Private</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <style>
-                    .login-container {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-height: 100vh;
-                        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-                        padding: 20px;
-                    }
-                    
-                    .login-card {
-                        background: var(--card-bg);
-                        border-radius: 16px;
-                        box-shadow: var(--shadow-lg);
-                        padding: 40px;
-                        max-width: 400px;
-                        width: 100%;
-                        text-align: center;
-                        border: 1px solid var(--border-color);
-                    }
-                    
-                    .login-header {
-                        margin-bottom: 30px;
-                    }
-                    
-                    .login-logo {
-                        width: 60px;
-                        height: 60px;
-                        margin-bottom: 15px;
-                    }
-                    
-                    .login-header h1 {
-                        color: var(--text-primary);
-                        margin: 0 0 10px 0;
-                        font-size: 28px;
-                        font-weight: 700;
-                    }
-                    
-                    .login-header p {
-                        color: var(--text-secondary);
-                        margin: 0;
-                        font-size: 14px;
-                    }
-                    
-                    .login-content h2 {
-                        color: var(--text-primary);
-                        margin: 0 0 10px 0;
-                        font-size: 24px;
-                        font-weight: 600;
-                    }
-                    
-                    .login-content > p {
-                        color: var(--text-secondary);
-                        margin: 0 0 30px 0;
-                        font-size: 14px;
-                    }
-                    
-                    .auth-btn {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 12px;
-                        width: 100%;
-                        padding: 12px 24px;
-                        background: var(--primary-color);
-                        border: 2px solid var(--primary-color);
-                        border-radius: 8px;
-                        color: white;
-                        font-size: 16px;
-                        font-weight: 500;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                        margin-bottom: 30px;
-                    }
-                    
-                    .auth-btn:hover {
-                        background: var(--primary-hover);
-                        border-color: var(--primary-hover);
-                    }
-                    
-                    .auth-btn i {
-                        font-size: 18px;
-                    }
-                    
-                    .login-features {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 15px;
-                    }
-                    
-                    .feature {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        color: var(--text-secondary);
-                        font-size: 14px;
-                    }
-                    
-                    .feature-icon {
-                        font-size: 18px;
-                    }
-                </style>
-            `;
-            
-            // Add event listener for simple authentication
-            document.getElementById('auth-btn').addEventListener('click', () => {
-                authManager.showAuthModal();
-            });
-        }
-        
-        // Show main dashboard
+        // Show main dashboard (simplified - no authentication needed)
         function showDashboard() {
-            // Restore original dashboard content
-            location.reload(); // Simple approach - reload to show authenticated dashboard
+            // Dashboard is already loaded, just ensure user info is set
+            updateUserInfo({
+                name: 'AuraReach User',
+                email: 'user@aurareach.com',
+                picture: ''
+            });
         }
         
         // Update user info in dashboard

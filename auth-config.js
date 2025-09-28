@@ -1,478 +1,130 @@
 /**
- * Simple Sheet-Based Authentication System for AuraReach
- * No Google OAuth - Direct sheet verification
+ * Simplified Authentication System for AuraReach
+ * Direct access without authentication
  */
 
 class SimpleAuthManager {
   constructor() {
-    this.currentUser = null;
-    this.isAuthenticated = false;
+    this.currentUser = {
+      email: 'user@aurareach.com',
+      name: 'AuraReach User',
+      role: 'admin',
+      picture: ''
+    };
+    this.isAuthenticated = true;
     this.authCallback = null;
-    this.userDatabase = [
-      // Add authorized users here
-      { email: 'mananvermabusiness@gmail.com', name: 'Manan Verma', role: 'admin' },
-      { email: 'rareauramedia@gmail.com', name: 'Rare Aura Media', role: 'admin' },
-      { email: 'admin@aurareachmedia.com', name: 'Admin User', role: 'admin' },
-      { email: 'user@aurareachmedia.com', name: 'Regular User', role: 'user' },
-      // Add more users as needed
-    ];
     
-    console.log('🔐 Simple Authentication System Loaded');
-    this.checkExistingAuth();
+    console.log('🔐 AuraReach Authentication Bypassed - Direct Access Enabled');
     
-    // Try automatic Chrome profile authentication
-    this.tryAutoAuthentication();
+    // Set user as authenticated immediately
+    localStorage.setItem('aurareach_user', JSON.stringify(this.currentUser));
+    this.updateUI();
   }
 
   /**
-   * Check if user is already authenticated
+   * Always return authenticated
    */
   checkExistingAuth() {
-    const savedUser = localStorage.getItem('aurareach_user');
-    if (savedUser) {
-      try {
-        this.currentUser = JSON.parse(savedUser);
-        this.isAuthenticated = true;
-        this.updateUI();
-        console.log('✅ User already authenticated:', this.currentUser.email);
-      } catch (error) {
-        console.warn('Invalid saved user data, clearing...');
-        localStorage.removeItem('aurareach_user');
-      }
-    }
+    return true;
   }
 
   /**
-   * Simple email-based authentication
+   * Bypass authentication - always succeed
    */
   async authenticateWithEmail(email) {
-    try {
-      // Validate email format
-      if (!this.isValidEmail(email)) {
-        throw new Error('Please enter a valid email address');
-      }
-
-      // Check if user exists in our database
-      const user = this.userDatabase.find(u => u.email.toLowerCase() === email.toLowerCase());
-      
-      if (!user) {
-        throw new Error('Email not authorized. Please contact admin for access.');
-      }
-
-      // Authenticate user
-      this.currentUser = user;
-      this.isAuthenticated = true;
-      
-      // Save to localStorage
-      localStorage.setItem('aurareach_user', JSON.stringify(user));
-      
-      // Store detected email for future auto-authentication
-      localStorage.setItem('aurareach_detected_email', email);
-      
-      // Update UI
-      this.updateUI();
-      
-      // Trigger auth listeners
-      this.triggerAuthListeners('signin', user);
-      
-      console.log('✅ Authentication successful:', user.email);
-      return { success: true, user: user };
-      
-    } catch (error) {
-      console.error('❌ Authentication failed:', error.message);
-      return { success: false, error: error.message };
-    }
+    return { success: true, user: this.currentUser };
   }
 
   /**
-   * Quick authentication (auto-login for returning users)
+   * Quick auth - always authenticated
    */
   async quickAuth() {
-    const savedUser = localStorage.getItem('aurareach_user');
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
-        this.currentUser = user;
-        this.isAuthenticated = true;
-        this.updateUI();
-        return { success: true, user: user };
-      } catch (error) {
-        localStorage.removeItem('aurareach_user');
-      }
-    }
-    return { success: false, error: 'No saved authentication found' };
+    return { success: true, user: this.currentUser };
   }
 
   /**
-   * Sign out user
+   * Sign out (optional - can be disabled)
    */
   signOut() {
-    this.currentUser = null;
-    this.isAuthenticated = false;
-    localStorage.removeItem('aurareach_user');
-    this.updateUI();
-    
-    // Trigger auth listeners
-    this.triggerAuthListeners('signout', null);
-    
-    console.log('👋 User signed out');
+    console.log('Sign out disabled in direct access mode');
   }
 
   /**
-   * Validate email format
+   * Always valid email
    */
   isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return true;
   }
 
   /**
-   * Update UI based on authentication state
+   * Update UI with default user
    */
   updateUI() {
-    // Update auth button
-    const authBtn = document.getElementById('auth-btn');
-    const userInfo = document.getElementById('user-info');
-    const authError = document.getElementById('auth-error');
+    // Update user info in the dashboard
+    const userAvatar = document.querySelector('.user-avatar img');
+    const userName = document.querySelector('.user-name');
+    const userEmail = document.querySelector('.user-email');
     
-    if (authError) {
-      authError.style.display = 'none';
-    }
-
-    if (this.isAuthenticated && this.currentUser) {
-      // User is authenticated
-      if (authBtn) {
-        authBtn.innerHTML = `
-          <i class="fas fa-user-circle"></i>
-          <span>${this.currentUser.name}</span>
-          <i class="fas fa-chevron-down"></i>
-        `;
-        authBtn.onclick = () => this.showUserMenu();
-      }
-      
-      if (userInfo) {
-        userInfo.innerHTML = `
-          <div class="user-details">
-            <span class="user-name">${this.currentUser.name}</span>
-            <span class="user-email">${this.currentUser.email}</span>
-            <span class="user-role">${this.currentUser.role}</span>
-          </div>
-        `;
-        userInfo.style.display = 'block';
-      }
-      
-      // Hide auth modal if open
-      const authModal = document.getElementById('auth-modal');
-      if (authModal) {
-        authModal.style.display = 'none';
-      }
-      
-    } else {
-      // User is not authenticated
-      if (authBtn) {
-        authBtn.innerHTML = `
-          <i class="fas fa-sign-in-alt"></i>
-          <span>Sign In</span>
-        `;
-        authBtn.onclick = () => this.showAuthModal();
-      }
-      
-      if (userInfo) {
-        userInfo.style.display = 'none';
-      }
-    }
+    if (userAvatar) userAvatar.src = this.currentUser.picture || '';
+    if (userName) userName.textContent = this.currentUser.name;
+    if (userEmail) userEmail.textContent = this.currentUser.email;
   }
 
   /**
-   * Show authentication modal
+   * No auth modal needed
    */
   showAuthModal() {
-    let authModal = document.getElementById('auth-modal');
-    
-    if (!authModal) {
-      // Create auth modal
-      authModal = document.createElement('div');
-      authModal.id = 'auth-modal';
-      authModal.innerHTML = `
-        <div class="modal-overlay">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3><i class="fas fa-sign-in-alt"></i> Sign In to AuraReach</h3>
-              <button class="close-btn" onclick="authManager.hideAuthModal()">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="auth-form">
-                <div class="form-group">
-                  <label for="auth-email">Email Address</label>
-                  <input type="email" id="auth-email" placeholder="Enter your email address" />
-                </div>
-                <div id="auth-error" class="error-message" style="display: none;"></div>
-                <button id="auth-submit-btn" class="auth-btn primary" onclick="authManager.handleEmailAuth()">
-                  <i class="fas fa-sign-in-alt"></i>
-                  Sign In
-                </button>
-                <div class="auth-info">
-                  <p><i class="fas fa-info-circle"></i> Enter your authorized email address to access AuraReach</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // Add styles
-      authModal.innerHTML += `
-        <style>
-          #auth-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
-          .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-          }
-          
-          .modal-content {
-            position: relative;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-          }
-          
-          .modal-header {
-            padding: 24px 24px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          
-          .modal-header h3 {
-            margin: 0;
-            color: #1a1a1a;
-            font-size: 20px;
-            font-weight: 600;
-          }
-          
-          .close-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: #666;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
-          }
-          
-          .close-btn:hover {
-            background: #f5f5f5;
-            color: #333;
-          }
-          
-          .modal-body {
-            padding: 24px;
-          }
-          
-          .form-group {
-            margin-bottom: 20px;
-          }
-          
-          .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-          }
-          
-          .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-          }
-          
-          .form-group input:focus {
-            outline: none;
-            border-color: #4f46e5;
-          }
-          
-          .auth-btn {
-            width: 100%;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-          }
-          
-          .auth-btn.primary {
-            background: #4f46e5;
-            color: white;
-          }
-          
-          .auth-btn.primary:hover {
-            background: #4338ca;
-          }
-          
-          .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 14px;
-          }
-          
-          .auth-info {
-            margin-top: 20px;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 8px;
-          }
-          
-          .auth-info p {
-            margin: 0;
-            font-size: 14px;
-            color: #64748b;
-          }
-        </style>
-      `;
-      
-      document.body.appendChild(authModal);
-    }
-    
-    authModal.style.display = 'flex';
-    
-    // Focus on email input
-    setTimeout(() => {
-      const emailInput = document.getElementById('auth-email');
-      if (emailInput) emailInput.focus();
-    }, 100);
+    console.log('Authentication modal disabled - direct access enabled');
   }
 
   /**
-   * Hide authentication modal
+   * No auth modal to hide
    */
   hideAuthModal() {
-    const authModal = document.getElementById('auth-modal');
-    if (authModal) {
-      authModal.style.display = 'none';
-    }
+    // Nothing to hide
   }
 
   /**
-   * Handle email authentication
+   * No email auth needed
    */
   async handleEmailAuth() {
-    const emailInput = document.getElementById('auth-email');
-    const errorDiv = document.getElementById('auth-error');
-    const submitBtn = document.getElementById('auth-submit-btn');
-    
-    if (!emailInput) return;
-    
-    const email = emailInput.value.trim();
-    
-    // Clear previous errors
-    if (errorDiv) {
-      errorDiv.style.display = 'none';
-    }
-    
-    // Show loading state
-    if (submitBtn) {
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
-      submitBtn.disabled = true;
-    }
-    
-    try {
-      const result = await this.authenticateWithEmail(email);
-      
-      if (result.success) {
-        this.hideAuthModal();
-      } else {
-        throw new Error(result.error);
-      }
-      
-    } catch (error) {
-      if (errorDiv) {
-        errorDiv.textContent = error.message;
-        errorDiv.style.display = 'block';
-      }
-    } finally {
-      // Reset button
-      if (submitBtn) {
-        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-        submitBtn.disabled = false;
-      }
-    }
+    return { success: true, user: this.currentUser };
   }
 
   /**
-   * Show user menu
+   * No user menu needed
    */
   showUserMenu() {
-    // Simple implementation - just sign out for now
-    if (confirm('Sign out of AuraReach?')) {
-      this.signOut();
-    }
+    console.log('User menu functionality can be added if needed');
   }
 
   /**
-   * Get current user
+   * Always return current user
    */
   getCurrentUser() {
     return this.currentUser;
   }
 
   /**
-   * Check if user is authenticated
+   * Always authenticated
    */
   isUserAuthenticated() {
-    return this.isAuthenticated;
+    return true;
   }
 
   /**
-   * Add authentication listener (for compatibility with existing code)
+   * Add auth listener (for compatibility)
    */
   addAuthListener(callback) {
-    // Store the callback for future use
     this.authCallback = callback;
-    
-    // If already authenticated, trigger callback immediately
-    if (this.isAuthenticated && this.currentUser) {
-      callback('signin', this.currentUser);
+    // Immediately trigger with authenticated state
+    if (callback) {
+      callback('authenticated', this.currentUser);
     }
   }
 
   /**
-   * Trigger auth listeners when authentication state changes
+   * Trigger auth listeners (for compatibility)
    */
   triggerAuthListeners(event, data) {
     if (this.authCallback) {
@@ -481,80 +133,24 @@ class SimpleAuthManager {
   }
 
   /**
-   * Try automatic authentication using stored credentials
+   * No auto authentication needed - always authenticated
    */
   async tryAutoAuthentication() {
-    if (this.isAuthenticated) {
-      console.log('🔐 User already authenticated, skipping auto-auth');
-      return;
-    }
-
-    try {
-      console.log('🔍 Attempting automatic authentication...');
-      
-      // Method 1: Check localStorage for previously stored email
-      const storedEmail = localStorage.getItem('aurareach_detected_email');
-      if (storedEmail && this.isValidEmail(storedEmail)) {
-        console.log('📧 Found stored email:', storedEmail);
-        const authResult = await this.authenticateWithEmail(storedEmail);
-        
-        if (authResult.success) {
-          console.log('✅ Automatic authentication successful with stored email!');
-          return;
-        }
-      }
-      
-      // Method 2: Check for any stored authentication token
-      const storedAuth = localStorage.getItem('aurareach_auth');
-      if (storedAuth) {
-        try {
-          const authData = JSON.parse(storedAuth);
-          if (authData.email && this.isValidEmail(authData.email)) {
-            console.log('📧 Found stored auth data for:', authData.email);
-            const authResult = await this.authenticateWithEmail(authData.email);
-            
-            if (authResult.success) {
-              console.log('✅ Automatic authentication successful with stored auth!');
-              return;
-            }
-          }
-        } catch (e) {
-          console.log('Invalid stored auth data, clearing...');
-          localStorage.removeItem('aurareach_auth');
-        }
-      }
-      
-      console.log('ℹ️ No stored credentials found, manual login required');
-      
-    } catch (error) {
-      console.log('⚠️ Auto-authentication failed:', error.message);
-    }
+    console.log('🔐 Direct access enabled - skipping authentication');
+    return { success: true, user: this.currentUser };
   }
 
-
-
   /**
-   * Enhanced email validation
+   * Always valid email
    */
   isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) && email.length > 5;
+    return true;
   }
 }
 
-// Initialize authentication when DOM is loaded
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  window.authManager = new SimpleAuthManager();
-  
-  // Handle Enter key in auth modal
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const authModal = document.getElementById('auth-modal');
-      if (authModal && authModal.style.display !== 'none') {
-        window.authManager.handleEmailAuth();
-      }
-    }
-  });
+  console.log('🚀 AuraReach Direct Access Mode Initialized');
 });
 
 // Create global auth manager instance
