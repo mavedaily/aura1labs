@@ -481,7 +481,7 @@ class SimpleAuthManager {
   }
 
   /**
-   * Try automatic authentication using Chrome profile
+   * Try automatic authentication using stored credentials
    */
   async tryAutoAuthentication() {
     if (this.isAuthenticated) {
@@ -490,139 +490,48 @@ class SimpleAuthManager {
     }
 
     try {
-      console.log('🔍 Attempting automatic Chrome profile authentication...');
+      console.log('🔍 Attempting automatic authentication...');
       
-      // Method 1: Try to get email from Chrome profile using Google APIs
-      const chromeEmail = await this.getChromeProfileEmail();
-      
-      if (chromeEmail) {
-        console.log('📧 Detected Chrome profile email:', chromeEmail);
-        const authResult = await this.authenticateWithEmail(chromeEmail);
+      // Method 1: Check localStorage for previously stored email
+      const storedEmail = localStorage.getItem('aurareach_detected_email');
+      if (storedEmail && this.isValidEmail(storedEmail)) {
+        console.log('📧 Found stored email:', storedEmail);
+        const authResult = await this.authenticateWithEmail(storedEmail);
         
         if (authResult.success) {
-          console.log('✅ Automatic authentication successful!');
+          console.log('✅ Automatic authentication successful with stored email!');
           return;
         }
       }
       
-      // Method 2: Try alternative detection methods
-      await this.tryAlternativeEmailDetection();
-      
-    } catch (error) {
-      console.log('⚠️ Auto-authentication failed, showing manual login:', error.message);
-    }
-  }
-
-  /**
-   * Get Chrome profile email using Google APIs
-   */
-  async getChromeProfileEmail() {
-    return new Promise((resolve) => {
-      try {
-        // Load Google Identity Services
-        if (typeof google !== 'undefined' && google.accounts) {
-          google.accounts.id.initialize({
-            client_id: 'your-google-client-id', // You'll need to add your actual client ID
-            callback: (response) => {
-              try {
-                const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                resolve(payload.email);
-              } catch (e) {
-                resolve(null);
-              }
-            },
-            auto_select: true,
-            cancel_on_tap_outside: false
-          });
-          
-          google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-              resolve(null);
+      // Method 2: Check for any stored authentication token
+      const storedAuth = localStorage.getItem('aurareach_auth');
+      if (storedAuth) {
+        try {
+          const authData = JSON.parse(storedAuth);
+          if (authData.email && this.isValidEmail(authData.email)) {
+            console.log('📧 Found stored auth data for:', authData.email);
+            const authResult = await this.authenticateWithEmail(authData.email);
+            
+            if (authResult.success) {
+              console.log('✅ Automatic authentication successful with stored auth!');
+              return;
             }
-          });
-        } else {
-          resolve(null);
-        }
-      } catch (error) {
-        console.log('Google APIs not available for auto-detection');
-        resolve(null);
-      }
-    });
-  }
-
-  /**
-   * Try alternative email detection methods
-   */
-  async tryAlternativeEmailDetection() {
-    try {
-      // Method 1: Check if user has Gmail open in another tab
-      const gmailEmail = await this.detectGmailEmail();
-      if (gmailEmail) {
-        const authResult = await this.authenticateWithEmail(gmailEmail);
-        if (authResult.success) return;
-      }
-
-      // Method 2: Check localStorage for previously stored email
-      const storedEmail = localStorage.getItem('aurareach_detected_email');
-      if (storedEmail) {
-        const authResult = await this.authenticateWithEmail(storedEmail);
-        if (authResult.success) return;
-      }
-
-      // Method 3: Try to detect from browser cookies (if available)
-      const cookieEmail = this.detectEmailFromCookies();
-      if (cookieEmail) {
-        const authResult = await this.authenticateWithEmail(cookieEmail);
-        if (authResult.success) return;
-      }
-
-    } catch (error) {
-      console.log('Alternative detection methods failed:', error.message);
-    }
-  }
-
-  /**
-   * Detect Gmail email from browser context
-   */
-  async detectGmailEmail() {
-    try {
-      // This is a simplified approach - in practice, you might need more sophisticated detection
-      const response = await fetch('https://accounts.google.com/ListAccounts?gpsia=1&source=ChromiumBrowser&json=standard', {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const text = await response.text();
-        const emailMatch = text.match(/"Email":"([^"]+)"/);
-        return emailMatch ? emailMatch[1] : null;
-      }
-    } catch (error) {
-      console.log('Gmail detection failed:', error.message);
-    }
-    return null;
-  }
-
-  /**
-   * Detect email from browser cookies
-   */
-  detectEmailFromCookies() {
-    try {
-      // Look for common email patterns in cookies
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
-        const emailMatch = cookie.match(/email[^=]*=([^;]*@[^;]*)/i);
-        if (emailMatch) {
-          const email = decodeURIComponent(emailMatch[1].trim());
-          if (this.isValidEmail(email)) {
-            return email;
           }
+        } catch (e) {
+          console.log('Invalid stored auth data, clearing...');
+          localStorage.removeItem('aurareach_auth');
         }
       }
+      
+      console.log('ℹ️ No stored credentials found, manual login required');
+      
     } catch (error) {
-      console.log('Cookie detection failed:', error.message);
+      console.log('⚠️ Auto-authentication failed:', error.message);
     }
-    return null;
   }
+
+
 
   /**
    * Enhanced email validation
